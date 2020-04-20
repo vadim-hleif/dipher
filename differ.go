@@ -1,38 +1,50 @@
-// Nice tool which allows view difference between json objects
-//and also fail build if by some rules
+// Nice package which allows view difference between json objects
+// and also fail build if by some rules
 package differ
 
-func Diff(obj interface{}, obj2 interface{}) interface{} {
-	original, first := obj.(map[string]string)
-	another, second := obj2.(map[string]string)
-	if !first || !second {
+import "reflect"
+
+func Diff(obj interface{}, obj2 interface{}) map[string]interface{} {
+	if (reflect.TypeOf(obj).Kind() != reflect.Map || reflect.TypeOf(obj2).Kind() != reflect.Map) ||
+		(reflect.TypeOf(obj) != reflect.TypeOf(obj2)) {
+		// unsupported yet
 		return nil
 	}
 
-	result := diff(another, original)
-	secondPart := diff(original, another)
+	switch reflect.TypeOf(obj).Kind() {
+	case reflect.Map:
+		original := reflect.ValueOf(obj)
+		another := reflect.ValueOf(obj2)
 
-	for key, value := range secondPart {
-		result[key] = value
-	}
+		result := diff(original, another)
+		secondPart := diff(another, original)
 
-	if len(result) == 0 {
+		for key, value := range secondPart {
+			result[key] = value
+		}
+
+		if len(result) == 0 {
+			return nil
+		} else {
+			return result
+		}
+
+	default:
 		return nil
-	} else {
-		return result
 	}
 }
 
-func diff(original map[string]string, another map[string]string) map[string]string {
-	result := map[string]string{}
+func diff(original reflect.Value, another reflect.Value) map[string]interface{} {
+	result := map[string]interface{}{}
+	it := original.MapRange()
 
-	for key, value := range another {
-		if v, ok := original[key]; ok {
-			if value != v {
-				result[key] = value
-			}
-		} else {
-			result[key] = value
+	for it.Next() {
+		key := it.Key()
+		value := it.Value()
+
+		v := another.MapIndex(key)
+		if !v.IsValid() || value.Interface() != v.Interface() {
+			result[key.String()] = value.Interface()
 		}
 	}
 

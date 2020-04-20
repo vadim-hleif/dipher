@@ -1,7 +1,7 @@
 package differ
 
 import (
-	"reflect"
+	"encoding/json"
 	"testing"
 )
 
@@ -24,8 +24,10 @@ func TestDiff_differentKeys(t *testing.T) {
 		"other-name": "John",
 		"name":       "John",
 	}
+	expectedBytes, _ := json.Marshal(expected)
+	resultBytes, _ := json.Marshal(result)
 
-	if !reflect.DeepEqual(result, expected) {
+	if string(expectedBytes) != string(resultBytes) {
 		t.Error("expected: ", expected, "got: ", result)
 	}
 }
@@ -38,11 +40,12 @@ func TestDiff_sameKeys(t *testing.T) {
 	})
 
 	expected := map[string]string{
-		"name":       "Other name",
+		"name": "Other name",
 	}
+	expectedBytes, _ := json.Marshal(expected)
+	resultBytes, _ := json.Marshal(result)
 
-	if !reflect.DeepEqual(result, expected) {
-		t.Error("expected: ", expected, "got: ", result)
+	if string(expectedBytes) != string(resultBytes) {
+		t.Error("expected: ", string(expectedBytes), "got: ", string(resultBytes))
 	}
 }
-
