@@ -20,10 +20,7 @@ func TestDiff_differentKeys(t *testing.T) {
 		"other-name": "John",
 	})
 
-	expected := map[string]interface{}{
-		"other-name": "John",
-		"name":       "John",
-	}
+	expected := []string{"name", "other-name"}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Error("expected: ", expected, "got: ", result)
@@ -37,9 +34,26 @@ func TestDiff_sameKeys(t *testing.T) {
 		"name": "Other name",
 	})
 
-	expected := map[string]interface{}{
-		"name": "Other name",
+	expected := []string{"name"}
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Error("expected: ", expected, "got: ", result)
 	}
+}
+
+func TestDiff_nestedDifferentValues(t *testing.T) {
+	result := Diff(
+		map[string]interface{}{
+			"name": map[string]interface{}{
+				"second-level": "value",
+			},
+		}, map[string]interface{}{
+			"name": map[string]interface{}{
+				"second-level": "value2",
+			},
+		})
+
+	expected := []string{"name.second-level"}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Error("expected: ", expected, "got: ", result)

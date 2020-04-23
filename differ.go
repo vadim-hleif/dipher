@@ -2,51 +2,56 @@
 // and also fail build if by some rules
 package differ
 
-import "reflect"
+import (
+	"bytes"
+	"github.com/google/go-cmp/cmp"
+	"regexp"
+	"strings"
+)
 
-func Diff(obj interface{}, obj2 interface{}) map[string]interface{} {
-	if (reflect.TypeOf(obj).Kind() != reflect.Map || reflect.TypeOf(obj2).Kind() != reflect.Map) ||
-		(reflect.TypeOf(obj) != reflect.TypeOf(obj2)) {
-		// unsupported yet
-		return nil
-	}
+// DiffReporter is a simple custom reporter that only records differences
+// detected during comparison.
+type DiffReporter struct {
+	path  cmp.Path
+	paths []string
+}
 
-	switch reflect.TypeOf(obj).Kind() {
-	case reflect.Map:
-		original := reflect.ValueOf(obj)
-		another := reflect.ValueOf(obj2)
+type Report struct {
+}
 
-		result := diff(original, another)
-		secondPart := diff(another, original)
+func (r *DiffReporter) PushStep(ps cmp.PathStep) {
+	r.path = append(r.path, ps)
+}
 
-		for key, value := range secondPart {
-			result[key] = value
+func (r *DiffReporter) Report(rs cmp.Result) {
+	if !rs.Equal() {
+		var result bytes.Buffer
+		for _, step := range r.path {
+			node := step.String()
+			r := regexp.MustCompile("\\[\"(.*)\"]")
+			match := r.FindStringSubmatch(node)
+			if len(match) > 0 {
+				result.WriteString(match[1])
+				result.WriteString(".")
+			}
 		}
+		result.Truncate(result.Len() - 1)
 
-		if len(result) == 0 {
-			return nil
-		} else {
-			return result
-		}
-
-	default:
-		return nil
+		r.paths = append(r.paths, result.String())
 	}
 }
 
-func diff(original reflect.Value, another reflect.Value) map[string]interface{} {
-	result := map[string]interface{}{}
-	it := original.MapRange()
+func (r *DiffReporter) PopStep() {
+	r.path = r.path[:len(r.path)-1]
+}
 
-	for it.Next() {
-		key := it.Key()
-		value := it.Value()
+func (r *DiffReporter) String() string {
+	return strings.Join(r.paths, "\n")
+}
 
-		v := another.MapIndex(key)
-		if !v.IsValid() || value.Interface() != v.Interface() {
-			result[key.String()] = value.Interface()
-		}
-	}
+func Diff(obj interface{}, obj2 interface{}) []string {
+	var r DiffReporter
+	cmp.Equal(obj, obj2, cmp.Reporter(&r))
 
-	return result
+	return r.paths
 }
