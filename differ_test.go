@@ -20,7 +20,13 @@ func TestDiff_differentKeys(t *testing.T) {
 		"other-name": "John",
 	})
 
-	expected := []string{"name", "other-name"}
+	expected := []Report{{
+		jsonPath: "name",
+		diff:     "removed",
+	}, {
+		jsonPath: "other-name",
+		diff:     "added",
+	}}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Error("expected: ", expected, "got: ", result)
@@ -34,7 +40,10 @@ func TestDiff_sameKeys(t *testing.T) {
 		"name": "Other name",
 	})
 
-	expected := []string{"name"}
+	expected := []Report{{
+		jsonPath: "name",
+		diff:     "value_changed",
+	}}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Error("expected: ", expected, "got: ", result)
@@ -53,7 +62,10 @@ func TestDiff_nestedDifferentValues(t *testing.T) {
 			},
 		})
 
-	expected := []string{"name.second-level"}
+	expected := []Report{{
+		jsonPath: "name.second-level",
+		diff:     "value_changed",
+	}}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Error("expected: ", expected, "got: ", result)
