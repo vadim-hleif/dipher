@@ -2,7 +2,7 @@ package reporter
 
 import (
 	"bytes"
-	. "differ/pkg/report"
+	"differ/pkg/report"
 	"github.com/google/go-cmp/cmp"
 	"regexp"
 	"strings"
@@ -12,9 +12,10 @@ import (
 // detected during comparison.
 type DiffReporter struct {
 	Path    cmp.Path
-	Reports Reports
+	Reports report.Reports
 }
 
+// Report custom logic to aggregate difference between jsons
 func (r *DiffReporter) Report(rs cmp.Result) {
 	if !rs.Equal() {
 		var result bytes.Buffer
@@ -44,10 +45,15 @@ func (r *DiffReporter) Report(rs cmp.Result) {
 				diff = "value_changed"
 			}
 		}
+		var actualValue interface{}
+		if newProp.IsValid() {
+			actualValue = newProp.Interface()
+		}
 
-		r.Reports = append(r.Reports, Report{
-			JsonPath: result.String(),
-			Diff:     diff,
+		r.Reports = append(r.Reports, report.Report{
+			JSONPath:    result.String(),
+			Diff:        diff,
+			ActualValue: actualValue,
 		})
 	}
 }

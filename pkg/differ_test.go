@@ -2,6 +2,8 @@ package pkg
 
 import (
 	. "differ/pkg/report"
+	"encoding/json"
+	"io/ioutil"
 	"reflect"
 	"testing"
 )
@@ -20,12 +22,13 @@ func TestDiff_differentKeys(t *testing.T) {
 	}, map[string]string{
 		"other-name": "John",
 	})
+	eraseActualValues(result)
 
 	expected := []Report{{
-		JsonPath: "name",
+		JSONPath: "name",
 		Diff:     "removed",
 	}, {
-		JsonPath: "other-name",
+		JSONPath: "other-name",
 		Diff:     "added",
 	}}
 
@@ -40,9 +43,10 @@ func TestDiff_sameKeys(t *testing.T) {
 	}, map[string]string{
 		"name": "Other name",
 	})
+	eraseActualValues(result)
 
 	expected := []Report{{
-		JsonPath: "name",
+		JSONPath: "name",
 		Diff:     "value_changed",
 	}}
 
@@ -62,13 +66,48 @@ func TestDiff_nestedDifferentValues(t *testing.T) {
 				"second-level": "value2",
 			},
 		})
+	eraseActualValues(result)
 
 	expected := []Report{{
-		JsonPath: "name.second-level",
+		JSONPath: "name.second-level",
 		Diff:     "value_changed",
 	}}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Error("expected: ", expected, "got: ", result)
+	}
+}
+
+func TestDiff_realSwagger(t *testing.T) {
+	file, _ := ioutil.ReadFile("../old-swagger.json")
+	var oldSwagger interface{}
+	_ = json.Unmarshal(file, &oldSwagger)
+
+	file, _ = ioutil.ReadFile("../new-swagger.json")
+	var newSwagger interface{}
+	_ = json.Unmarshal(file, &newSwagger)
+
+	result := Diff(oldSwagger, newSwagger)
+	eraseActualValues(result)
+
+	expected := []Report{{
+		JSONPath: "paths./http_test/test_get/{pathParam}",
+		Diff:     "removed",
+	}, {
+		JSONPath: "paths./http_test/test_get2/{pathParam}",
+		Diff:     "added",
+	}, {
+		JSONPath: "paths./proxy-config/api/v1/proxy-config/environments.get.parameters",
+		Diff:     "added",
+	}}
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Error("expected: ", expected, "got: ", result)
+	}
+}
+
+func eraseActualValues(r []Report) {
+	for i := range r {
+		r[i].ActualValue = nil
 	}
 }

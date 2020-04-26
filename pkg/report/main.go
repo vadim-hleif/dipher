@@ -1,5 +1,3 @@
-// Nice package which allows view difference between json objects
-// and also fail build if by some rules
 package report
 
 import (
@@ -7,11 +5,14 @@ import (
 	"fmt"
 )
 
+// Report contains jsonPath and difference description
 type Report struct {
-	JsonPath string
-	Diff     string
+	JSONPath    string
+	Diff        string
+	ActualValue interface{}
 }
 
+// Reports it's slice of Report
 type Reports []Report
 
 func (r Reports) String() string {
@@ -24,5 +25,5 @@ func (r Reports) String() string {
 }
 
 func (r *Report) String() string {
-	return fmt.Sprintf("%v\n\t%v", r.JsonPath, r.Diff)
+	return fmt.Sprintf("%v\n\t%v\n\t%v", r.JSONPath, r.Diff, r.ActualValue)
 }
