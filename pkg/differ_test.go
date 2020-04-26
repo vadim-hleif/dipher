@@ -1,6 +1,7 @@
-package differ
+package pkg
 
 import (
+	. "differ/pkg/report"
 	"reflect"
 	"testing"
 )
@@ -21,11 +22,11 @@ func TestDiff_differentKeys(t *testing.T) {
 	})
 
 	expected := []Report{{
-		jsonPath: "name",
-		diff:     "removed",
+		JsonPath: "name",
+		Diff:     "removed",
 	}, {
-		jsonPath: "other-name",
-		diff:     "added",
+		JsonPath: "other-name",
+		Diff:     "added",
 	}}
 
 	if !reflect.DeepEqual(result, expected) {
@@ -41,8 +42,8 @@ func TestDiff_sameKeys(t *testing.T) {
 	})
 
 	expected := []Report{{
-		jsonPath: "name",
-		diff:     "value_changed",
+		JsonPath: "name",
+		Diff:     "value_changed",
 	}}
 
 	if !reflect.DeepEqual(result, expected) {
@@ -63,8 +64,8 @@ func TestDiff_nestedDifferentValues(t *testing.T) {
 		})
 
 	expected := []Report{{
-		jsonPath: "name.second-level",
-		diff:     "value_changed",
+		JsonPath: "name.second-level",
+		Diff:     "value_changed",
 	}}
 
 	if !reflect.DeepEqual(result, expected) {

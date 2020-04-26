@@ -1,10 +1,8 @@
-// Nice package which allows view difference between json objects
-// and also fail build if by some rules
-package differ
+package reporter
 
 import (
 	"bytes"
-	"fmt"
+	. "differ/pkg/report"
 	"github.com/google/go-cmp/cmp"
 	"regexp"
 	"strings"
@@ -13,23 +11,14 @@ import (
 // DiffReporter is a simple custom reporter that only records differences
 // detected during comparison.
 type DiffReporter struct {
-	path    cmp.Path
-	reports []Report
-}
-
-type Report struct {
-	jsonPath string
-	diff     string
-}
-
-func (r *DiffReporter) PushStep(ps cmp.PathStep) {
-	r.path = append(r.path, ps)
+	Path    cmp.Path
+	Reports Reports
 }
 
 func (r *DiffReporter) Report(rs cmp.Result) {
 	if !rs.Equal() {
 		var result bytes.Buffer
-		for _, step := range r.path {
+		for _, step := range r.Path {
 			node := step.String()
 			r := regexp.MustCompile("\\[\"(.*)\"]")
 			match := r.FindStringSubmatch(node)
@@ -40,7 +29,7 @@ func (r *DiffReporter) Report(rs cmp.Result) {
 		}
 		result.Truncate(result.Len() - 1)
 
-		oldProp, newProp := r.path.Last().Values()
+		oldProp, newProp := r.Path.Last().Values()
 		var diff string
 		if oldProp.IsValid() && !newProp.IsValid() {
 			diff = "removed"
@@ -56,32 +45,25 @@ func (r *DiffReporter) Report(rs cmp.Result) {
 			}
 		}
 
-		r.reports = append(r.reports, Report{
-			jsonPath: result.String(),
-			diff:     diff,
+		r.Reports = append(r.Reports, Report{
+			JsonPath: result.String(),
+			Diff:     diff,
 		})
 	}
 }
 
+func (r *DiffReporter) PushStep(ps cmp.PathStep) {
+	r.Path = append(r.Path, ps)
+}
+
 func (r *DiffReporter) PopStep() {
-	r.path = r.path[:len(r.path)-1]
+	r.Path = r.Path[:len(r.Path)-1]
 }
 
 func (r *DiffReporter) String() string {
 	var result []string
-	for _, v := range r.reports {
+	for _, v := range r.Reports {
 		result = append(result, v.String())
 	}
 	return strings.Join(result, "\n")
-}
-
-func (r *Report) String() string {
-	return fmt.Sprint("#v \n\t #v", r.jsonPath, r.diff)
-}
-
-func Diff(obj interface{}, obj2 interface{}) []Report {
-	var r DiffReporter
-	cmp.Equal(obj, obj2, cmp.Reporter(&r))
-
-	return r.reports
 }
