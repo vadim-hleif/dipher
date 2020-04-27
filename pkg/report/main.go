@@ -8,7 +8,7 @@ import (
 // Report contains jsonPath and difference description
 type Report struct {
 	JSONPath    string
-	Diff        string
+	Diff        DiffType
 	ActualValue interface{}
 }
 

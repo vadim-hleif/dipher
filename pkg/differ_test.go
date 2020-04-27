@@ -26,10 +26,10 @@ func TestDiff_differentKeys(t *testing.T) {
 
 	expected := []Report{{
 		JSONPath: "name",
-		Diff:     "removed",
+		Diff:     Removed,
 	}, {
 		JSONPath: "other-name",
-		Diff:     "added",
+		Diff:     Added,
 	}}
 
 	if !reflect.DeepEqual(result, expected) {
@@ -47,7 +47,7 @@ func TestDiff_sameKeys(t *testing.T) {
 
 	expected := []Report{{
 		JSONPath: "name",
-		Diff:     "value_changed",
+		Diff:     ValueChanged,
 	}}
 
 	if !reflect.DeepEqual(result, expected) {
@@ -70,7 +70,7 @@ func TestDiff_nestedDifferentValues(t *testing.T) {
 
 	expected := []Report{{
 		JSONPath: "name.second-level",
-		Diff:     "value_changed",
+		Diff:     ValueChanged,
 	}}
 
 	if !reflect.DeepEqual(result, expected) {
@@ -92,13 +92,13 @@ func TestDiff_realSwagger(t *testing.T) {
 
 	expected := []Report{{
 		JSONPath: "paths./http_test/test_get/{pathParam}",
-		Diff:     "removed",
+		Diff:     Removed,
 	}, {
 		JSONPath: "paths./http_test/test_get2/{pathParam}",
-		Diff:     "added",
+		Diff:     Added,
 	}, {
 		JSONPath: "paths./proxy-config/api/v1/proxy-config/environments.get.parameters",
-		Diff:     "added",
+		Diff:     Added,
 	}}
 
 	if !reflect.DeepEqual(result, expected) {

@@ -31,18 +31,18 @@ func (r *DiffReporter) Report(rs cmp.Result) {
 		result.Truncate(result.Len() - 1)
 
 		oldProp, newProp := r.Path.Last().Values()
-		var diff string
+		var diff report.DiffType
 		if oldProp.IsValid() && !newProp.IsValid() {
-			diff = "removed"
+			diff = report.Removed
 		} else if !oldProp.IsValid() && newProp.IsValid() {
-			diff = "added"
+			diff = report.Added
 		}
 
 		if oldProp.IsValid() && newProp.IsValid() {
 			if oldProp.Type() != newProp.Type() {
-				diff = "type_changed"
+				diff = report.TypeChanged
 			} else if oldProp.Interface() != newProp.Interface() {
-				diff = "value_changed"
+				diff = report.ValueChanged
 			}
 		}
 		var actualValue interface{}
