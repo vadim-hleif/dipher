@@ -4,66 +4,66 @@ import (
 	"fmt"
 )
 
-func Diff(spec map[string]interface{}, changedSpec map[string]interface{}) []error {
-	var result []error
-	changesPaths := changedSpec["paths"].(map[string]interface{})
+func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error {
+	var errs []error
+	pathsV2 := specV2["paths"].(map[string]interface{})
 
-	for url, node := range spec["paths"].(map[string]interface{}) {
-		changedNode := getNode(changesPaths, url)
+	for url, urlNodeV1 := range specV1["paths"].(map[string]interface{}) {
+		urlNodeV2 := getNode(pathsV2, url)
 
-		if changedNode == nil {
-			result = append(result, fmt.Errorf("resource %v mustn't be removed", url))
+		if urlNodeV2 == nil {
+			errs = append(errs, fmt.Errorf("resource %v mustn't be removed", url))
 			continue
 		}
 
-		for method, methodNode := range node.(map[string]interface{}) {
-			resource := methodNode.(map[string]interface{})
-			changedMethod := getNode(changedNode, method)
+		for methodV1, m := range urlNodeV1.(map[string]interface{}) {
+			methodNodeV1 := m.(map[string]interface{})
+			methodNodeV2 := getNode(urlNodeV2, methodV1)
 
-			if changedMethod == nil {
-				result = append(result, fmt.Errorf("%v method of %v path mustn't be removed", method, url))
+			if methodNodeV2 == nil {
+				errs = append(errs, fmt.Errorf("%v method of %v path mustn't be removed", methodV1, url))
 				continue
 			}
 
-			params := resource["parameters"].([]interface{})
-			changedParams := changedMethod["parameters"].([]interface{})
+			paramsV1 := methodNodeV1["parameters"].([]interface{})
+			paramsV2 := methodNodeV2["parameters"].([]interface{})
 
-			for _, p := range params {
-				param := p.(map[string]interface{})
-				changedParam := findParam(changedParams, param["name"].(string))
+			for _, p := range paramsV1 {
+				paramV1 := p.(map[string]interface{})
+				paramV2 := findParam(paramsV2, paramV1["name"].(string))
 
-				paramRequired := getRequiredProp(param)
-				changedParamRequired := getRequiredProp(changedParam)
+				isParamV1Required := getRequiredProp(paramV1)
+				isParamV2Required := getRequiredProp(paramV2)
 
-				if changedParam == nil && paramRequired {
-					result = append(result, fmt.Errorf("required param %v deleted", param["name"].(string)))
+				if paramV2 == nil && isParamV1Required {
+					errs = append(errs, fmt.Errorf("required param %v deleted", paramV1["name"].(string)))
 				}
 
-				if !paramRequired && changedParamRequired {
-					result = append(result, fmt.Errorf("param %v mustn't be required because it wasn't be required", param["name"].(string)))
+				if !isParamV1Required && isParamV2Required {
+					errs = append(errs, fmt.Errorf("param %v mustn't be required because it wasn't be required", paramV1["name"].(string)))
 				}
 
-				if changedParam != nil && param != nil {
-					paramType := getTypeProp(param)
-					changedParamType := getTypeProp(changedParam)
+				if paramV2 != nil && paramV1 != nil {
+					paramType := getTypeProp(paramV1)
+					changedParamType := getTypeProp(paramV2)
 
 					if paramType != changedParamType {
-						result = append(result, fmt.Errorf("param %v mustn't change type from %v to %v", param["name"].(string), paramType, changedParamType))
+						errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), paramType, changedParamType))
 					}
 				}
 			}
 
-			for _, p := range changedParams {
-				changedParam := p.(map[string]interface{})
-				if findParam(params, changedParam["name"].(string)) == nil && getRequiredProp(changedParam) {
-					result = append(result, fmt.Errorf("new required param %v mustn't be added", changedParam["name"].(string)))
+			for _, p := range paramsV2 {
+				paramV2 := p.(map[string]interface{})
+				if findParam(paramsV1, paramV2["name"].(string)) == nil && getRequiredProp(paramV2) {
+					errs = append(errs, fmt.Errorf("new required param %v mustn't be added", paramV2["name"].(string)))
 				}
 			}
 		}
 
 	}
 
-	return result
+	return errs
 }
 
 func getNode(node map[string]interface{}, key string) map[string]interface{} {
