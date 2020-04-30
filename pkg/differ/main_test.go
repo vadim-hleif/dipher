@@ -27,6 +27,8 @@ func TestDiff(t *testing.T) {
 	}
 
 	expected := []error{
+		errors.New("get method of /pet/findByTags path mustn't be removed"),
+		errors.New("resource /pet/findByStatus mustn't be removed"),
 		errors.New("param additionalMetadata mustn't change type from string to integer"),
 		errors.New("param petId mustn't be required because it wasn't be required"),
 		errors.New("required param body deleted"),

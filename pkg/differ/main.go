@@ -8,15 +8,25 @@ func Diff(spec map[string]interface{}, changedSpec map[string]interface{}) []err
 	var result []error
 	changesPaths := changedSpec["paths"].(map[string]interface{})
 
-	for path, node := range spec["paths"].(map[string]interface{}) {
-		changedNode := changesPaths[path].(map[string]interface{})
+	for url, node := range spec["paths"].(map[string]interface{}) {
+		changedNode := getNode(changesPaths, url)
 
-		for path, method := range node.(map[string]interface{}) {
-			resource := method.(map[string]interface{})
-			changedResource := changedNode[path].(map[string]interface{})
+		if changedNode == nil {
+			result = append(result, fmt.Errorf("resource %v mustn't be removed", url))
+			continue
+		}
+
+		for method, methodNode := range node.(map[string]interface{}) {
+			resource := methodNode.(map[string]interface{})
+			changedMethod := getNode(changedNode, method)
+
+			if changedMethod == nil {
+				result = append(result, fmt.Errorf("%v method of %v path mustn't be removed", method, url))
+				continue
+			}
 
 			params := resource["parameters"].([]interface{})
-			changedParams := changedResource["parameters"].([]interface{})
+			changedParams := changedMethod["parameters"].([]interface{})
 
 			for _, p := range params {
 				param := p.(map[string]interface{})
@@ -54,6 +64,16 @@ func Diff(spec map[string]interface{}, changedSpec map[string]interface{}) []err
 	}
 
 	return result
+}
+
+func getNode(node map[string]interface{}, key string) map[string]interface{} {
+	value, ok := node[key]
+
+	if ok {
+		return value.(map[string]interface{})
+	}
+
+	return nil
 }
 
 func getRequiredProp(node map[string]interface{}) bool {
