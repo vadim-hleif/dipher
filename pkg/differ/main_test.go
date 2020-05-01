@@ -12,11 +12,11 @@ import (
 
 func TestDiff(t *testing.T) {
 
-	file, _ := ioutil.ReadFile("spec.json")
+	file, _ := ioutil.ReadFile("specV1.json")
 	var spec map[string]interface{}
 	_ = json.Unmarshal(file, &spec)
 
-	file, _ = ioutil.ReadFile("spec-changed.json")
+	file, _ = ioutil.ReadFile("specV2.json")
 	var changedSpec map[string]interface{}
 	_ = json.Unmarshal(file, &changedSpec)
 
@@ -33,6 +33,7 @@ func TestDiff(t *testing.T) {
 		errors.New("param petId mustn't be required because it wasn't be required"),
 		errors.New("required param body deleted"),
 		errors.New("new required param required-param mustn't be added"),
+		errors.New("param check-schema-type-diff mustn't change type from string to integer"),
 	}
 
 	sort.Slice(expected, func(i, j int) bool {

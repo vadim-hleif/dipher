@@ -48,7 +48,6 @@
     "/pet": {
       "post": {
         "parameters": [
-
         ],
         "responses": {
           "405": {
@@ -82,7 +81,6 @@
       }
     },
     "/pet/findByTags": {
-
     },
     "/pet/{petId}": {
       "get": {
@@ -92,8 +90,16 @@
             "in": "path",
             "description": "ID of pet to return",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "integer"
+          },
+          {
+            "name": "check-schema-type-diff",
+            "in": "query",
+            "description": "ID of pet to return",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {

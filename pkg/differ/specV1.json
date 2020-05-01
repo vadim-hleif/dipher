@@ -157,8 +157,16 @@
             "in": "path",
             "description": "ID of pet to return",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "check-schema-type-diff",
+            "in": "query",
+            "description": "ID of pet to return",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {

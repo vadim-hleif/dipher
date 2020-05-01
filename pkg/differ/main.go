@@ -93,6 +93,15 @@ func getTypeProp(node map[string]interface{}) string {
 		return value.(string)
 	}
 
+	value, ok = node["schema"]
+	if ok {
+		schema := value.(map[string]interface{})
+		value, ok := schema["type"]
+		if ok {
+			return value.(string)
+		}
+	}
+
 	return ""
 }
 
