@@ -34,6 +34,9 @@ func TestDiff(t *testing.T) {
 		errors.New("required param body deleted"),
 		errors.New("new required param required-param mustn't be added"),
 		errors.New("param check-schema-type-diff mustn't change type from string to integer"),
+		errors.New("param sort-without-enum mustn't have enum"),
+		errors.New("param sort-without-enum-schema mustn't have enum"),
+		errors.New("param missed-enum-value mustn't remove value desc from enum"),
 	}
 
 	sort.Slice(expected, func(i, j int) bool {

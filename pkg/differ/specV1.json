@@ -24,6 +24,42 @@
             "description": "file to upload",
             "required": false,
             "type": "file"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "check enums",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "desc",
+              "asc"
+            ]
+          },
+          {
+            "name": "sort-without-enum",
+            "in": "query",
+            "description": "check enums",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sort-without-enum-schema",
+            "in": "query",
+            "description": "check enums",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "missed-enum-value",
+            "in": "query",
+            "description": "check enums",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
           }
         ],
         "responses": {

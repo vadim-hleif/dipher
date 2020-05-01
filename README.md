@@ -5,4 +5,4 @@
 - [ ] all response attributes in the old specification are present in the new one
 - [ ] all response attributes in the old specification have the same type in the new one
 - [ ] all request and response models via $ref don't have any differences
-- [ ] enums validation
+- [X] enums validation

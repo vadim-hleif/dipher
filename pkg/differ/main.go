@@ -50,6 +50,31 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 					if paramType != changedParamType {
 						errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), paramType, changedParamType))
 					}
+
+					enumV1 := getEnum(paramV1)
+					enumV2 := getEnum(paramV2)
+
+					if enumV2 == nil && enumV1 == nil {
+						continue
+					}
+
+					if enumV1 == nil && enumV2 != nil {
+						errs = append(errs, fmt.Errorf("param %v mustn't have enum", paramV1["name"].(string)))
+					}
+
+					for _, elV1 := range enumV1 {
+						var exist bool
+						for _, elV2 := range enumV2 {
+							if elV1 == elV2 {
+								exist = true
+								break
+							}
+						}
+
+						if !exist {
+							errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", paramV1["name"].(string), elV1))
+						}
+					}
 				}
 			}
 
@@ -84,6 +109,25 @@ func getRequiredProp(node map[string]interface{}) bool {
 	}
 
 	return false
+}
+
+func getEnum(node map[string]interface{}) []interface{} {
+	value, ok := node["enum"]
+
+	if ok {
+		return value.([]interface{})
+	}
+
+	value, ok = node["schema"]
+	if ok {
+		schema := value.(map[string]interface{})
+		value, ok := schema["enum"]
+		if ok {
+			return value.([]interface{})
+		}
+	}
+
+	return nil
 }
 
 func getTypeProp(node map[string]interface{}) string {
