@@ -44,11 +44,57 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 				}
 
 				if paramV2 != nil && paramV1 != nil {
-					paramType := getTypeProp(paramV1)
-					changedParamType := getTypeProp(paramV2)
+					typeV1 := getTypeProp(paramV1)
+					typeV2 := getTypeProp(paramV2)
 
-					if paramType != changedParamType {
-						errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), paramType, changedParamType))
+					if typeV1 != typeV2 {
+						errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
+					}
+
+					if typeV1 == "object" {
+						schemaV1 := getNode(paramV1, "schema")
+						schemaV2 := getNode(paramV2, "schema")
+
+						requiredPropsV1 := getRequiredProps(schemaV1)
+						requiredPropsV2 := getRequiredProps(schemaV2)
+
+						compareAndApply(requiredPropsV2, requiredPropsV1, func(name interface{}) {
+							errs = append(errs, fmt.Errorf("param %v mustn't be required because it wasn't be required", name))
+						})
+
+						compareAndApply(requiredPropsV1, requiredPropsV2, func(name interface{}) {
+							errs = append(errs, fmt.Errorf("required param %v deleted", name))
+						})
+
+						pV2 := getNode(schemaV2, "properties")
+
+						for nameV1, propsV1 := range getNode(schemaV1, "properties") {
+							propsV2, ok := pV2[nameV1]
+							if ok {
+								typeV1 := getTypeProp(propsV1.(map[string]interface{}))
+								typeV2 := getTypeProp(propsV2.(map[string]interface{}))
+
+								if typeV1 != typeV2 {
+									errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", nameV1, typeV1, typeV2))
+								}
+
+								enumV1 := getEnum(propsV1.(map[string]interface{}))
+								enumV2 := getEnum(propsV2.(map[string]interface{}))
+								if enumV2 == nil && enumV1 == nil {
+									continue
+								}
+
+								if enumV1 == nil && enumV2 != nil {
+									errs = append(errs, fmt.Errorf("param %v mustn't have enum", nameV1))
+								}
+
+								compareAndApply(enumV1, enumV2, func(name interface{}) {
+									errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", nameV1, name))
+								})
+							}
+
+						}
+
 					}
 
 					enumV1 := getEnum(paramV1)
@@ -62,19 +108,9 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 						errs = append(errs, fmt.Errorf("param %v mustn't have enum", paramV1["name"].(string)))
 					}
 
-					for _, elV1 := range enumV1 {
-						var exist bool
-						for _, elV2 := range enumV2 {
-							if elV1 == elV2 {
-								exist = true
-								break
-							}
-						}
-
-						if !exist {
-							errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", paramV1["name"].(string), elV1))
-						}
-					}
+					compareAndApply(enumV1, enumV2, func(name interface{}) {
+						errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", paramV1["name"].(string), name))
+					})
 				}
 			}
 
@@ -89,6 +125,22 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 	}
 
 	return errs
+}
+
+func compareAndApply(sliceV1 []interface{}, sliceV2 []interface{}, cb func(name interface{})) {
+	for _, elV1 := range sliceV1 {
+		var exist bool
+		for _, elV2 := range sliceV2 {
+			if elV1 == elV2 {
+				exist = true
+				break
+			}
+		}
+
+		if !exist {
+			cb(elV1)
+		}
+	}
 }
 
 func getNode(node map[string]interface{}, key string) map[string]interface{} {
@@ -109,6 +161,16 @@ func getRequiredProp(node map[string]interface{}) bool {
 	}
 
 	return false
+}
+
+func getRequiredProps(node map[string]interface{}) []interface{} {
+	value, ok := node["required"]
+
+	if ok {
+		return value.([]interface{})
+	}
+
+	return nil
 }
 
 func getEnum(node map[string]interface{}) []interface{} {

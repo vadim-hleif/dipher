@@ -27,15 +27,18 @@ func TestDiff(t *testing.T) {
 	}
 
 	expected := []error{
+		errors.New("param id mustn't have enum"),
+		errors.New("param name mustn't remove value alex from enum"),
+		errors.New("param age mustn't change type from integer to string"),
+		errors.New("required param name deleted"),
+		errors.New("param age mustn't be required because it wasn't be required"),
 		errors.New("get method of /pet/findByTags path mustn't be removed"),
 		errors.New("resource /pet/findByStatus mustn't be removed"),
 		errors.New("param additionalMetadata mustn't change type from string to integer"),
 		errors.New("param petId mustn't be required because it wasn't be required"),
 		errors.New("required param body deleted"),
 		errors.New("new required param required-param mustn't be added"),
-		errors.New("param check-schema-type-diff mustn't change type from string to integer"),
 		errors.New("param sort-without-enum mustn't have enum"),
-		errors.New("param sort-without-enum-schema mustn't have enum"),
 		errors.New("param missed-enum-value mustn't remove value desc from enum"),
 	}
 
@@ -53,6 +56,13 @@ func TestDiff(t *testing.T) {
 	fmt.Println("____________________")
 	fmt.Println("Actual errors:")
 	for _, err := range errs {
+		fmt.Println(err)
+	}
+	fmt.Println("____________________")
+
+	fmt.Println("____________________")
+	fmt.Println("Expected errors:")
+	for _, err := range expected {
 		fmt.Println(err)
 	}
 	fmt.Println("____________________")

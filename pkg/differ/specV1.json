@@ -1,6 +1,40 @@
 {
   "swagger": "2.0",
   "paths": {
+    "/pet/{petId}/check-models-definition": {
+      "post": {
+        "parameters": [
+          {
+            "name": "object",
+            "in": "body",
+            "description": "object",
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string",
+                  "enum": [
+                    "alex",
+                    "john",
+                    "tom"
+                  ]
+                },
+                "age": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
     "/pet/{petId}/uploadImage": {
       "post": {
         "parameters": [
@@ -38,13 +72,6 @@
           },
           {
             "name": "sort-without-enum",
-            "in": "query",
-            "description": "check enums",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "sort-without-enum-schema",
             "in": "query",
             "description": "check enums",
             "required": true,
@@ -193,16 +220,7 @@
             "in": "path",
             "description": "ID of pet to return",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "check-schema-type-diff",
-            "in": "query",
-            "description": "ID of pet to return",
-            "required": true,
-            "type": "string"
+            "type": "integer"
           }
         ],
         "responses": {
