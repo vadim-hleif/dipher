@@ -1,0 +1,23 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ]
+      }
+    }
+  }
+}

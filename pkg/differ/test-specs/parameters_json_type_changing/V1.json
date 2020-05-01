@@ -1,0 +1,34 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+          {
+            "name": "create-request",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string",
+                  "enum": [
+                    "alex",
+                    "john",
+                    "tom"
+                  ]
+                },
+                "age": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

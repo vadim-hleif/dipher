@@ -36,7 +36,7 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 				isParamV2Required := getRequiredProp(paramV2)
 
 				if paramV2 == nil && isParamV1Required {
-					errs = append(errs, fmt.Errorf("required param %v deleted", paramV1["name"].(string)))
+					errs = append(errs, fmt.Errorf("required param %v mustn't be deleted", paramV1["name"].(string)))
 				}
 
 				if !isParamV1Required && isParamV2Required {
@@ -63,7 +63,7 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 						})
 
 						compareAndApply(requiredPropsV1, requiredPropsV2, func(name interface{}) {
-							errs = append(errs, fmt.Errorf("required param %v deleted", name))
+							errs = append(errs, fmt.Errorf("required param %v musnt't be deleted", name))
 						})
 
 						pV2 := getNode(schemaV2, "properties")

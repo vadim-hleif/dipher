@@ -3,68 +3,135 @@ package differ
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"reflect"
 	"sort"
 	"testing"
 )
 
+type test struct {
+	name      string
+	specsPath string
+	want      []error
+}
+
+var cases = []test{
+	{
+		name:      "should detect removing enum value in any request object property",
+		specsPath: "enum_json_removed_value_from_old_enum",
+		want: []error{
+			errors.New("param name mustn't remove value alex from enum"),
+		},
+	},
+	{
+		name:      "should detect adding enum in any request object property",
+		specsPath: "enum_json_adding_enum_to_old_value_without_enum",
+		want: []error{
+			errors.New("param age mustn't have enum"),
+		},
+	},
+	{
+		name:      "should detect removing enum value in any request param",
+		specsPath: "enum_removed_value_from_old_enum",
+		want: []error{
+			errors.New("param sort mustn't remove value asc from enum"),
+		},
+	},
+	{
+		name:      "should detect adding enum in any request param",
+		specsPath: "enum_adding_enum_to_old_value_without_enum",
+		want: []error{
+			errors.New("param sort mustn't have enum"),
+		},
+	},
+	{
+		name:      "should detect path removing",
+		specsPath: "path_removing_path",
+		want: []error{
+			errors.New("resource /pet mustn't be removed"),
+		},
+	},
+	{
+		name:      "should detect method removing in the any path",
+		specsPath: "path_method_removing",
+		want: []error{
+			errors.New("post method of /pet path mustn't be removed"),
+		},
+	},
+	{
+		name:      "should detect type changing in the any request object property",
+		specsPath: "parameters_json_type_changing",
+		want: []error{
+			errors.New("param id mustn't change type from integer to string"),
+		},
+	},
+	{
+		name:      "should detect required property removing in the request object",
+		specsPath: "parameters_json_required_property_deletion",
+		want: []error{
+			errors.New("required param id musnt't be deleted"),
+		},
+	},
+	{
+		name:      "should detect new required property in the request object",
+		specsPath: "parameters_json_required_property_adding",
+		want: []error{
+			errors.New("param age mustn't be required because it wasn't be required"),
+		},
+	},
+	{
+		name:      "should detect type changing in the any request param",
+		specsPath: "parameters_type_changing",
+		want: []error{
+			errors.New("param sort mustn't change type from string to integer"),
+		},
+	},
+	{
+		name:      "should detect required property removing in the any request param",
+		specsPath: "parameters_required_param_deletion",
+		want: []error{
+			errors.New("required param sort mustn't be deleted"),
+		},
+	},
+	{
+		name:      "should detect new required param in the request",
+		specsPath: "parameters_new_required_param",
+		want: []error{
+			errors.New("new required param filter mustn't be added"),
+		},
+	},
+	{
+		name:      "should detect marking old param as required",
+		specsPath: "parameters_mark_old_param_as_required",
+		want: []error{
+			errors.New("param sort mustn't be required because it wasn't be required"),
+		},
+	},
+}
+
 func TestDiff(t *testing.T) {
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			file, _ := ioutil.ReadFile("test-specs/" + tt.specsPath + "/V1.json")
+			var specV1 map[string]interface{}
+			_ = json.Unmarshal(file, &specV1)
 
-	file, _ := ioutil.ReadFile("specV1.json")
-	var spec map[string]interface{}
-	_ = json.Unmarshal(file, &spec)
+			file, _ = ioutil.ReadFile("test-specs/" + tt.specsPath + "/V2.json")
+			var specV2 map[string]interface{}
+			_ = json.Unmarshal(file, &specV2)
 
-	file, _ = ioutil.ReadFile("specV2.json")
-	var changedSpec map[string]interface{}
-	_ = json.Unmarshal(file, &changedSpec)
+			got := Diff(specV1, specV2)
 
-	errs := Diff(spec, changedSpec)
+			sort.Slice(got, func(i, j int) bool {
+				return got[i].Error() < got[j].Error()
+			})
+			sort.Slice(tt.want, func(i, j int) bool {
+				return tt.want[i].Error() < tt.want[j].Error()
+			})
 
-	if errs == nil {
-		t.Error("Should produce errs")
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Diff() = %v, want %v", got, tt.want)
+			}
+		})
 	}
-
-	expected := []error{
-		errors.New("param id mustn't have enum"),
-		errors.New("param name mustn't remove value alex from enum"),
-		errors.New("param age mustn't change type from integer to string"),
-		errors.New("required param name deleted"),
-		errors.New("param age mustn't be required because it wasn't be required"),
-		errors.New("get method of /pet/findByTags path mustn't be removed"),
-		errors.New("resource /pet/findByStatus mustn't be removed"),
-		errors.New("param additionalMetadata mustn't change type from string to integer"),
-		errors.New("param petId mustn't be required because it wasn't be required"),
-		errors.New("required param body deleted"),
-		errors.New("new required param required-param mustn't be added"),
-		errors.New("param sort-without-enum mustn't have enum"),
-		errors.New("param missed-enum-value mustn't remove value desc from enum"),
-	}
-
-	sort.Slice(expected, func(i, j int) bool {
-		return expected[i].Error() < expected[j].Error()
-	})
-	sort.Slice(errs, func(i, j int) bool {
-		return errs[i].Error() < errs[j].Error()
-	})
-
-	if !reflect.DeepEqual(errs, expected) {
-		t.Error("expected: ", expected, "got: ", errs)
-	}
-
-	fmt.Println("____________________")
-	fmt.Println("Actual errors:")
-	for _, err := range errs {
-		fmt.Println(err)
-	}
-	fmt.Println("____________________")
-
-	fmt.Println("____________________")
-	fmt.Println("Expected errors:")
-	for _, err := range expected {
-		fmt.Println(err)
-	}
-	fmt.Println("____________________")
-
 }
