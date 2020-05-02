@@ -117,6 +117,32 @@ func TestDiff_should_detect_type_changing_in_the_any_request_param(t *testing.T)
 	})
 }
 
+func TestDiff_should_detect_type_chaning_in_array(t *testing.T) {
+	runTest(t, test{
+		specsPath: "params/type_changing_in_array",
+		want: []error{
+			errors.New("param sort mustn't change type from string to integer"),
+		},
+	})
+}
+func TestDiff_should_detect_adding_enum_old_value_array_value_without_enum(t *testing.T) {
+	runTest(t, test{
+		specsPath: "params/adding_enum_to_old_value_array_value_without_enum",
+		want: []error{
+			errors.New("param sort mustn't have enum"),
+		},
+	})
+}
+
+func TestDiff_should_detect_removing_value_from_old_array_enum(t *testing.T) {
+	runTest(t, test{
+		specsPath: "params/removed_value_from_old_array_enum",
+		want: []error{
+			errors.New("param sort mustn't remove value desc from enum"),
+		},
+	})
+}
+
 // END REQUEST PARAMS
 
 // REQUEST OBJECTS WITH DEFINITION

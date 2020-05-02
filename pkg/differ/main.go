@@ -33,7 +33,8 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 				paramV1 := p.(map[string]interface{})
 				paramV2 := findParam(paramsV2, paramV1["name"].(string))
 
-				switch getTypeProp(paramV1) {
+				typeV1, _ := getTypeProp(paramV1)
+				switch typeV1 {
 				case "reference", "object":
 					errs = compareObjectParams(paramV1, paramV2, specV1, specV2, errs)
 				default:
@@ -80,8 +81,8 @@ func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]i
 		})
 	}
 
-	typeV1 := getTypeProp(paramV1)
-	typeV2 := getTypeProp(paramV2)
+	typeV1, _ := getTypeProp(paramV1)
+	typeV2, _ := getTypeProp(paramV2)
 
 	if typeV1 != typeV2 {
 		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
@@ -101,7 +102,8 @@ func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]inte
 		schemaV2 = paramV2
 	}
 
-	if getTypeProp(paramV1) == "reference" {
+	typeV1, _ := getTypeProp(paramV1)
+	if typeV1 == "reference" {
 		return compareObjectParams(getModelByRef(paramV1, specV1), getModelByRef(paramV2, specV2),
 			specV1, specV2, errs)
 	}
@@ -123,8 +125,8 @@ func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]inte
 		propsV1 := p.(map[string]interface{})
 		propsV2, ok := pV2[nameV1].(map[string]interface{})
 		if ok {
-			typeV1 := getTypeProp(propsV1)
-			typeV2 := getTypeProp(propsV2)
+			typeV1, _ := getTypeProp(propsV1)
+			typeV2, _ := getTypeProp(propsV2)
 
 			if typeV1 == "reference" {
 				errs = compareObjectParams(getModelByRef(propsV1, specV1), getModelByRef(propsV2, specV2),
@@ -201,6 +203,14 @@ func getRequiredProps(node map[string]interface{}) []interface{} {
 }
 
 func getEnum(node map[string]interface{}) []interface{} {
+	if _, isArray := getTypeProp(node); isArray {
+		items := node["items"].(map[string]interface{})
+
+		if enum, ok := items["enum"]; ok {
+			return enum.([]interface{})
+		}
+	}
+
 	value, ok := node["enum"]
 
 	if ok {
@@ -219,11 +229,12 @@ func getEnum(node map[string]interface{}) []interface{} {
 	return nil
 }
 
-func getTypeProp(node map[string]interface{}) string {
+func getTypeProp(node map[string]interface{}) (string, bool) {
 	value, ok := node["type"]
+	elType := "reference"
 
 	if ok {
-		return value.(string)
+		elType = value.(string)
 	}
 
 	value, ok = node["schema"]
@@ -231,11 +242,17 @@ func getTypeProp(node map[string]interface{}) string {
 		schema := value.(map[string]interface{})
 		value, ok := schema["type"]
 		if ok {
-			return value.(string)
+			elType = value.(string)
 		}
 	}
 
-	return "reference"
+	var isArray bool
+	if elType == "array" {
+		elType = node["items"].(map[string]interface{})["type"].(string)
+		isArray = true
+	}
+
+	return elType, isArray
 }
 
 func findParam(in []interface{}, name string) map[string]interface{} {

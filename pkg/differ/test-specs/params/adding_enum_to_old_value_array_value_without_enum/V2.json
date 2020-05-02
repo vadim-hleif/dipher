@@ -1,0 +1,25 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "check enums",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
