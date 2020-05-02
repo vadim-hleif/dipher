@@ -8,7 +8,7 @@
 - [ ] all response models via $ref don't have any differences
 - [X] enums validation
 - [ ] arrays type support
-- [ ] recursive refs
+- [X] recursive refs
 - [ ] extensions validation
 
 
@@ -16,4 +16,6 @@ TODO MINOR THINGS
 - [ ] common / global parameters (in root of some path / specification)
 - [ ] empty value parameters
 - [X] ref to not definitions node
+- [ ] recursive objects
 - [ ] reusable enums
+- [ ] definition in V1 with object in V2 (both cases)

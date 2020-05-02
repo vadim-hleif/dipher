@@ -33,16 +33,11 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 				paramV1 := p.(map[string]interface{})
 				paramV2 := findParam(paramsV2, paramV1["name"].(string))
 
-				typeV1 := getTypeProp(paramV1)
-				typeV2 := getTypeProp(paramV2)
-
-				switch typeV1 {
-				case "reference":
-					errs = validateParam(typeV1, typeV2, getModelByRef(paramV1, specV1), getModelByRef(paramV2, specV2), errs)
-				case "object":
-					errs = validateParam(typeV1, typeV2, paramV1, paramV2, errs)
+				switch getTypeProp(paramV1) {
+				case "reference", "object":
+					errs = compareObjectParams(paramV1, paramV2, specV1, specV2, errs)
 				default:
-					errs = validateParamPrimitive(paramV1, paramV2, errs, typeV1, typeV2)
+					errs = comparePrimitiveParams(paramV1, paramV2, errs)
 				}
 
 			}
@@ -60,13 +55,12 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 	return errs
 }
 
-func validateParamPrimitive(paramV1 map[string]interface{}, paramV2 map[string]interface{}, errs []error, typeV1 string, typeV2 string) []error {
+func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]interface{}, errs []error) []error {
 	isParamV1Required := getRequiredProp(paramV1)
 	isParamV2Required := getRequiredProp(paramV2)
 
 	if paramV2 == nil && isParamV1Required {
 		return append(errs, fmt.Errorf("required param %v mustn't be deleted", paramV1["name"].(string)))
-
 	}
 
 	if !isParamV1Required && isParamV2Required {
@@ -86,6 +80,9 @@ func validateParamPrimitive(paramV1 map[string]interface{}, paramV2 map[string]i
 		})
 	}
 
+	typeV1 := getTypeProp(paramV1)
+	typeV2 := getTypeProp(paramV2)
+
 	if typeV1 != typeV2 {
 		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
 	}
@@ -93,11 +90,8 @@ func validateParamPrimitive(paramV1 map[string]interface{}, paramV2 map[string]i
 	return errs
 }
 
-func validateParam(typeV1 string, typeV2 string, paramV1 map[string]interface{}, paramV2 map[string]interface{}, errs []error) []error {
-	if typeV1 != typeV2 {
-		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
-	}
-
+func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]interface{},
+	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []error, ) []error {
 	schemaV1 := getNode(paramV1, "schema")
 	if schemaV1 == nil {
 		schemaV1 = paramV1
@@ -105,6 +99,11 @@ func validateParam(typeV1 string, typeV2 string, paramV1 map[string]interface{},
 	schemaV2 := getNode(paramV2, "schema")
 	if schemaV2 == nil {
 		schemaV2 = paramV2
+	}
+
+	if getTypeProp(paramV1) == "reference" {
+		return compareObjectParams(getModelByRef(paramV1, specV1), getModelByRef(paramV2, specV2),
+			specV1, specV2, errs)
 	}
 
 	requiredPropsV1 := getRequiredProps(schemaV1)
@@ -120,18 +119,24 @@ func validateParam(typeV1 string, typeV2 string, paramV1 map[string]interface{},
 
 	pV2 := getNode(schemaV2, "properties")
 
-	for nameV1, propsV1 := range getNode(schemaV1, "properties") {
-		propsV2, ok := pV2[nameV1]
+	for nameV1, p := range getNode(schemaV1, "properties") {
+		propsV1 := p.(map[string]interface{})
+		propsV2, ok := pV2[nameV1].(map[string]interface{})
 		if ok {
-			typeV1 := getTypeProp(propsV1.(map[string]interface{}))
-			typeV2 := getTypeProp(propsV2.(map[string]interface{}))
+			typeV1 := getTypeProp(propsV1)
+			typeV2 := getTypeProp(propsV2)
+
+			if typeV1 == "reference" {
+				errs = compareObjectParams(getModelByRef(propsV1, specV1), getModelByRef(propsV2, specV2),
+					specV1, specV2, errs)
+			}
 
 			if typeV1 != typeV2 {
 				errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", nameV1, typeV1, typeV2))
 			}
 
-			enumV1 := getEnum(propsV1.(map[string]interface{}))
-			enumV2 := getEnum(propsV2.(map[string]interface{}))
+			enumV1 := getEnum(propsV1)
+			enumV2 := getEnum(propsV2)
 			if enumV2 == nil && enumV1 == nil {
 				continue
 			}
@@ -245,9 +250,13 @@ func findParam(in []interface{}, name string) map[string]interface{} {
 }
 
 func getModelByRef(node map[string]interface{}, spec map[string]interface{}) map[string]interface{} {
-	schema := node["schema"].(map[string]interface{})
-	ref := schema["ref"].(string)
-	//#/definitions/Pet
+	schema, ok := node["schema"].(map[string]interface{})
+	var ref string
+	if ok {
+		ref = schema["$ref"].(string)
+	} else {
+		ref = node["$ref"].(string)
+	}
 
 	paths := strings.Split(ref, "/")
 

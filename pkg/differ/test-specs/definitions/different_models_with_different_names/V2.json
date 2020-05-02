@@ -8,7 +8,7 @@
             "name": "create-request",
             "in": "body",
             "schema": {
-              "ref": "#/definitions/AnotherPet"
+              "$ref": "#/definitions/AnotherPet"
             }
           }
         ]
