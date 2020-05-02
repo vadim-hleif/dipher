@@ -16,97 +16,143 @@ type test struct {
 }
 
 var cases = []test{
+	// params-object test cases
 	{
 		name:      "should detect removing enum value in any request object property",
-		specsPath: "enum_json_removed_value_from_old_enum",
+		specsPath: "params-object/removed_value_from_old_enum",
 		want: []error{
 			errors.New("param name mustn't remove value alex from enum"),
 		},
 	},
 	{
 		name:      "should detect adding enum in any request object property",
-		specsPath: "enum_json_adding_enum_to_old_value_without_enum",
+		specsPath: "params-object/adding_enum_to_old_value_without_enum",
 		want: []error{
 			errors.New("param age mustn't have enum"),
 		},
 	},
 	{
-		name:      "should detect removing enum value in any request param",
-		specsPath: "enum_removed_value_from_old_enum",
-		want: []error{
-			errors.New("param sort mustn't remove value asc from enum"),
-		},
-	},
-	{
-		name:      "should detect adding enum in any request param",
-		specsPath: "enum_adding_enum_to_old_value_without_enum",
-		want: []error{
-			errors.New("param sort mustn't have enum"),
-		},
-	},
-	{
-		name:      "should detect path removing",
-		specsPath: "path_removing_path",
-		want: []error{
-			errors.New("resource /pet mustn't be removed"),
-		},
-	},
-	{
-		name:      "should detect method removing in the any path",
-		specsPath: "path_method_removing",
-		want: []error{
-			errors.New("post method of /pet path mustn't be removed"),
-		},
-	},
-	{
 		name:      "should detect type changing in the any request object property",
-		specsPath: "parameters_json_type_changing",
+		specsPath: "params-object/type_changing",
 		want: []error{
 			errors.New("param id mustn't change type from integer to string"),
 		},
 	},
 	{
 		name:      "should detect required property removing in the request object",
-		specsPath: "parameters_json_required_property_deletion",
+		specsPath: "params-object/required_property_deletion",
 		want: []error{
 			errors.New("required param id musnt't be deleted"),
 		},
 	},
 	{
 		name:      "should detect new required property in the request object",
-		specsPath: "parameters_json_required_property_adding",
+		specsPath: "params-object/required_property_adding",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
 		},
 	},
+	// end params-object test cases
+
+	// primitive params test cases
+	{
+		name:      "should detect removing enum value in any request param",
+		specsPath: "params/removed_value_from_old_enum",
+		want: []error{
+			errors.New("param sort mustn't remove value asc from enum"),
+		},
+	},
+	{
+		name:      "should detect adding enum in any request param",
+		specsPath: "params/adding_enum_to_old_value_without_enum",
+		want: []error{
+			errors.New("param sort mustn't have enum"),
+		},
+	},
 	{
 		name:      "should detect type changing in the any request param",
-		specsPath: "parameters_type_changing",
+		specsPath: "params/type_changing",
 		want: []error{
 			errors.New("param sort mustn't change type from string to integer"),
 		},
 	},
 	{
 		name:      "should detect required property removing in the any request param",
-		specsPath: "parameters_required_param_deletion",
+		specsPath: "params/required_param_deletion",
 		want: []error{
 			errors.New("required param sort mustn't be deleted"),
 		},
 	},
 	{
 		name:      "should detect new required param in the request",
-		specsPath: "parameters_new_required_param",
+		specsPath: "params/new_required_param",
 		want: []error{
 			errors.New("new required param filter mustn't be added"),
 		},
 	},
 	{
 		name:      "should detect marking old param as required",
-		specsPath: "parameters_mark_old_param_as_required",
+		specsPath: "params/mark_old_param_as_required",
 		want: []error{
 			errors.New("param sort mustn't be required because it wasn't be required"),
 		},
 	},
+	// end primitive params test cases
+
+	// objects with definitions test cases
+	{
+		name:      "should detect new required property in the request object definition",
+		specsPath: "definitions/required_property_adding",
+		want: []error{
+			errors.New("param age mustn't be required because it wasn't be required"),
+		},
+	},
+	{
+		name:      "should detect required property removing in the request object definition",
+		specsPath: "definitions/required_property_deletion",
+		want: []error{
+			errors.New("required param name musnt't be deleted"),
+		},
+	},
+	{
+		name:      "should detect type changing in the any request object property definition",
+		specsPath: "definitions/type_changing",
+		want: []error{
+			errors.New("param id mustn't change type from integer to string"),
+		},
+	},
+	{
+		name:      "should detect adding enum in any request object property definition",
+		specsPath: "definitions/adding_enum_to_old_value_without_enum",
+		want: []error{
+			errors.New("param name mustn't have enum"),
+		},
+	},
+	{
+		name:      "should detect removing enum value in any request object property definition",
+		specsPath: "definitions/removed_value_from_old_enum",
+		want: []error{
+			errors.New("param name mustn't remove value alex from enum"),
+		},
+	},
+	// end objects with definitions test cases
+
+	// resources and verbs test cases
+	{
+		name:      "should detect path removing",
+		specsPath: "paths_and_verbs/resource_removing",
+		want: []error{
+			errors.New("resource /pet mustn't be removed"),
+		},
+	},
+	{
+		name:      "should detect method removing in the any path",
+		specsPath: "paths_and_verbs/verb_removing",
+		want: []error{
+			errors.New("post method of /pet path mustn't be removed"),
+		},
+	},
+	// end resources and verbs test cases
 }
 
 func TestDiff(t *testing.T) {

@@ -1,0 +1,34 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+          {
+            "name": "create-request",
+            "in": "body",
+            "schema": {
+              "ref": "#/definitions/Pet"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "age": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
