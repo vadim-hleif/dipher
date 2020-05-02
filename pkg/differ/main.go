@@ -6,7 +6,7 @@ import (
 )
 
 func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error {
-	var errs []error
+	errs := make([]error, 0)
 	pathsV2 := specV2["paths"].(map[string]interface{})
 
 	for url, urlNodeV1 := range specV1["paths"].(map[string]interface{}) {
@@ -89,6 +89,7 @@ func validateParamPrimitive(paramV1 map[string]interface{}, paramV2 map[string]i
 	if typeV1 != typeV2 {
 		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
 	}
+
 	return errs
 }
 
@@ -114,7 +115,7 @@ func validateParam(typeV1 string, typeV2 string, paramV1 map[string]interface{},
 	})
 
 	compareAndApply(requiredPropsV1, requiredPropsV2, func(name interface{}) {
-		errs = append(errs, fmt.Errorf("required param %v musnt't be deleted", name))
+		errs = append(errs, fmt.Errorf("required param %v mustn't be deleted", name))
 	})
 
 	pV2 := getNode(schemaV2, "properties")

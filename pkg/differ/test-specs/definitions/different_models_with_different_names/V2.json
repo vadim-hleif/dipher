@@ -1,0 +1,43 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+          {
+            "name": "create-request",
+            "in": "body",
+            "schema": {
+              "ref": "#/definitions/AnotherPet"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AnotherPet": {
+      "type": "object",
+      "required": [
+        "name",
+        "age"
+      ],
+      "properties": {
+        "name": {
+          "type": "integer",
+          "enum": [
+            "john",
+            "tom"
+          ]
+        },
+        "age": {
+          "type": "integer",
+          "enum": [
+            18,
+            42
+          ]
+        }
+      }
+    }
+  }
+}

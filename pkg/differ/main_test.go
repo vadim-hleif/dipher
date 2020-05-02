@@ -42,7 +42,7 @@ var cases = []test{
 		name:      "should detect required property removing in the request object",
 		specsPath: "params-object/required_property_deletion",
 		want: []error{
-			errors.New("required param id musnt't be deleted"),
+			errors.New("required param id mustn't be deleted"),
 		},
 	},
 	{
@@ -111,7 +111,7 @@ var cases = []test{
 		name:      "should detect required property removing in the request object definition",
 		specsPath: "definitions/required_property_deletion",
 		want: []error{
-			errors.New("required param name musnt't be deleted"),
+			errors.New("required param name mustn't be deleted"),
 		},
 	},
 	{
@@ -133,6 +133,29 @@ var cases = []test{
 		specsPath: "definitions/removed_value_from_old_enum",
 		want: []error{
 			errors.New("param name mustn't remove value alex from enum"),
+		},
+	},
+	{
+		name:      "should detect object definition in any path",
+		specsPath: "definitions/custom_def_path",
+		want: []error{
+			errors.New("param age mustn't be required because it wasn't be required"),
+		},
+	},
+	{
+		name:      "should compare models by different refs",
+		specsPath: "definitions/same_models_with_different_names",
+		want:      make([]error, 0),
+	},
+	{
+		name:      "should detect diff in models with different refs",
+		specsPath: "definitions/different_models_with_different_names",
+		want: []error{
+			errors.New("param age mustn't be required because it wasn't be required"),
+			errors.New("param age mustn't have enum"),
+			errors.New("param name mustn't change type from string to integer"),
+			errors.New("param name mustn't remove value alex from enum"),
+			errors.New("required param id mustn't be deleted"),
 		},
 	},
 	// end objects with definitions test cases

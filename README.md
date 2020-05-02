@@ -15,5 +15,5 @@
 TODO MINOR THINGS
 - [ ] common / global parameters (in root of some path / specification)
 - [ ] empty value parameters
-- [ ] ref to not definitions node
+- [X] ref to not definitions node
 - [ ] reusable enums
