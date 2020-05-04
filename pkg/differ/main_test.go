@@ -177,7 +177,7 @@ func TestDiff_should_detect_adding_enum_in_any_request_object_property_definitio
 	runTest(t, test{
 		specsPath: "definitions/adding_enum_to_old_value_without_enum",
 		want: []error{
-			errors.New("param name mustn't have enum"),
+			errors.New("param age mustn't have enum"),
 		},
 	})
 }
@@ -207,9 +207,31 @@ func TestDiff_should_compare_models_by_different_refs(t *testing.T) {
 	})
 }
 
+func TestDiff_should_detect_adding_enum_in_any_request_object_property_definition_array(t *testing.T) {
+	runTest(t, test{
+		specsPath: "definitions/adding_enum_to_old_array_value_without_enum",
+		want: []error{
+			errors.New("param age mustn't have enum"),
+		},
+	})
+}
+
 func TestDiff_should_detect_diff_in_models_with_different_refs(t *testing.T) {
 	runTest(t, test{
 		specsPath: "definitions/different_models_with_different_names",
+		want: []error{
+			errors.New("param age mustn't be required because it wasn't be required"),
+			errors.New("param age mustn't have enum"),
+			errors.New("param name mustn't change type from string to integer"),
+			errors.New("param name mustn't remove value alex from enum"),
+			errors.New("required param id mustn't be deleted"),
+		},
+	})
+}
+
+func TestDiff_should_detect_diff_in_models_with_different_refs_array(t *testing.T) {
+	runTest(t, test{
+		specsPath: "definitions/different_models_with_different_names_array",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
 			errors.New("param age mustn't have enum"),

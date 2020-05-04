@@ -8,25 +8,35 @@
             "name": "create-request",
             "in": "body",
             "schema": {
-              "type": "object",
-              "required": [
-                "id",
-                "name"
-              ],
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "age": {
-                  "type": "integer"
-                }
-              }
+              "$ref": "#/definitions/Pet"
             }
           }
         ]
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "alex",
+            "john",
+            "tom"
+          ]
+        },
+        "age": {
+          "type": "integer"
+        }
       }
     }
   }

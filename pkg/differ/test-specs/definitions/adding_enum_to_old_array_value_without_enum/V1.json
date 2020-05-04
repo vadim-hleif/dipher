@@ -7,7 +7,8 @@
           {
             "name": "create-request",
             "in": "body",
-            "schema": {
+            "type": "array",
+            "items": {
               "$ref": "#/definitions/Pet"
             }
           }
@@ -29,6 +30,7 @@
         "name": {
           "type": "string",
           "enum": [
+            "alex",
             "john",
             "tom"
           ]

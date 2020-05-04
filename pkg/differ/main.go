@@ -248,8 +248,16 @@ func getTypeProp(node map[string]interface{}) (string, bool) {
 
 	var isArray bool
 	if elType == "array" {
-		elType = node["items"].(map[string]interface{})["type"].(string)
 		isArray = true
+		items := node["items"].(map[string]interface{})
+
+		t, ok := items["type"]
+
+		if ok {
+			elType = t.(string)
+		} else if _, ok := items["$ref"]; ok {
+			elType = "reference"
+		}
 	}
 
 	return elType, isArray
@@ -269,7 +277,10 @@ func findParam(in []interface{}, name string) map[string]interface{} {
 func getModelByRef(node map[string]interface{}, spec map[string]interface{}) map[string]interface{} {
 	schema, ok := node["schema"].(map[string]interface{})
 	var ref string
-	if ok {
+
+	if _, isArray := getTypeProp(node); isArray {
+		ref = node["items"].(map[string]interface{})["$ref"].(string)
+	} else if ok {
 		ref = schema["$ref"].(string)
 	} else {
 		ref = node["$ref"].(string)

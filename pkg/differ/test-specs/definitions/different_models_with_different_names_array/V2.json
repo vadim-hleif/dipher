@@ -7,8 +7,9 @@
           {
             "name": "create-request",
             "in": "body",
-            "schema": {
-              "$ref": "#/definitions/Pet"
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/AnotherPet"
             }
           }
         ]
@@ -16,25 +17,26 @@
     }
   },
   "definitions": {
-    "Pet": {
+    "AnotherPet": {
       "type": "object",
       "required": [
-        "id",
-        "name"
+        "name",
+        "age"
       ],
       "properties": {
-        "id": {
-          "type": "integer"
-        },
         "name": {
-          "type": "string",
+          "type": "integer",
           "enum": [
             "john",
             "tom"
           ]
         },
         "age": {
-          "type": "integer"
+          "type": "integer",
+          "enum": [
+            18,
+            42
+          ]
         }
       }
     }

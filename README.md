@@ -7,7 +7,7 @@
 - [ ] all response attributes in the old specification have the same type in the new one
 - [ ] all response models via $ref don't have any differences
 - [X] enums validation
-- [ ] arrays type support
+- [X] arrays type support
 - [X] recursive refs
 - [ ] extensions validation
 
@@ -18,4 +18,5 @@ TODO MINOR THINGS
 - [X] ref to not definitions node
 - [X] recursive objects
 - [ ] reusable enums
+- [ ] array of anonymous objects
 - [ ] definition in V1 with object in V2 (both cases)
