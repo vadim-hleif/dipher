@@ -147,7 +147,7 @@ func compareResponseObjects(responseV1 map[string]interface{}, responseV2 map[st
 }
 
 func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]interface{},
-	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []error, ) []error {
+	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []error) []error {
 	schemaV1 := getNode(paramV1, "schema")
 	if schemaV1 == nil {
 		schemaV1 = paramV1

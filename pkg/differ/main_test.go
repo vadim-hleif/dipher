@@ -316,6 +316,28 @@ func TestDiff_should_detect_diff_in_response_nested_refs(t *testing.T) {
 	})
 }
 
+func TestDiff_should_detect_diff_in_response_models_with_different_refs(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/response/definitions/different_models_with_different_names",
+		want: []error{
+			errors.New("response field id mustn't be deleted"),
+			errors.New("response field name mustn't change type from string to integer"),
+		},
+	})
+}
+
+func TestDiff_should_detect_diff_in_response_models_with_different_refs_array(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/response/definitions/different_models_with_different_names_array",
+		want: []error{
+			errors.New("response field id mustn't be deleted"),
+			errors.New("response field name mustn't change type from string to integer"),
+		},
+	})
+}
+
+// END RESPONSE
+
 // test helper
 func runTest(t *testing.T, tt test) {
 	file, _ := ioutil.ReadFile("test-specs/" + tt.specsPath + "/V1.json")
