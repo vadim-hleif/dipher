@@ -40,7 +40,6 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 				default:
 					errs = comparePrimitiveParams(paramV1, paramV2, errs)
 				}
-
 			}
 
 			for _, p := range paramsV2 {
@@ -49,8 +48,21 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error 
 					errs = append(errs, fmt.Errorf("new required param %v mustn't be added", paramV2["name"].(string)))
 				}
 			}
-		}
 
+			responsesV1 := methodNodeV1["responses"].(map[string]interface{})
+			responsesV2 := methodNodeV2["responses"].(map[string]interface{})
+
+			for code, c := range responsesV1 {
+				responseV1 := c.(map[string]interface{})
+				responseV2, ok := responsesV2[code].(map[string]interface{})
+
+				if !ok {
+					errs = append(errs, fmt.Errorf("response with code %v mustn't be removed", code))
+				} else {
+					errs = compareResponseObjects(responseV1, responseV2, specV1, specV2, errs)
+				}
+			}
+		}
 	}
 
 	return errs
@@ -88,6 +100,49 @@ func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]i
 		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
 	}
 
+	return errs
+}
+
+func compareResponseObjects(responseV1 map[string]interface{}, responseV2 map[string]interface{},
+	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []error) []error {
+	schemaV1 := getNode(responseV1, "schema")
+	if schemaV1 == nil {
+		schemaV1 = responseV1
+	}
+	schemaV2 := getNode(responseV2, "schema")
+	if schemaV2 == nil {
+		schemaV2 = responseV2
+	}
+
+	typeV1, _ := getTypeProp(responseV1)
+	if typeV1 == "reference" {
+		return compareResponseObjects(getModelByRef(responseV1, specV1), getModelByRef(responseV2, specV2),
+			specV1, specV2, errs)
+	}
+
+	pV2 := getNode(schemaV2, "properties")
+
+	for nameV1, p := range getNode(schemaV1, "properties") {
+		propsV1 := p.(map[string]interface{})
+		propsV2, ok := pV2[nameV1].(map[string]interface{})
+
+		if ok {
+			typeV1, _ := getTypeProp(propsV1)
+			typeV2, _ := getTypeProp(propsV2)
+
+			if typeV1 == "reference" {
+				errs = compareResponseObjects(getModelByRef(propsV1, specV1), getModelByRef(propsV2, specV2),
+					specV1, specV2, errs)
+			}
+
+			if typeV1 != typeV2 {
+				errs = append(errs, fmt.Errorf("response field %v mustn't change type from %v to %v", nameV1, typeV1, typeV2))
+			}
+		} else {
+			errs = append(errs, fmt.Errorf("response field %v mustn't be deleted", nameV1))
+		}
+
+	}
 	return errs
 }
 
@@ -231,7 +286,7 @@ func getEnum(node map[string]interface{}) []interface{} {
 
 func getTypeProp(node map[string]interface{}) (string, bool) {
 	value, ok := node["type"]
-	elType := "reference"
+	var elType string
 
 	if ok {
 		elType = value.(string)
@@ -243,7 +298,13 @@ func getTypeProp(node map[string]interface{}) (string, bool) {
 		value, ok := schema["type"]
 		if ok {
 			elType = value.(string)
+		} else if _, ok := schema["$ref"]; ok {
+			elType = "reference"
 		}
+	}
+
+	if _, ok := node["$ref"]; ok {
+		elType = "reference"
 	}
 
 	var isArray bool

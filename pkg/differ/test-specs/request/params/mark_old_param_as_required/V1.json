@@ -8,12 +8,8 @@
             "name": "sort",
             "in": "query",
             "description": "check enums",
-            "required": true,
-            "type": "string",
-            "enum": [
-              "desc",
-              "asc"
-            ]
+            "required": false,
+            "type": "string"
           }
         ],
         "responses": {

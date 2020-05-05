@@ -1,0 +1,87 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Pet"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "alex",
+            "john",
+            "tom"
+          ]
+        },
+        "age": {
+          "type": "integer"
+        },
+        "owner": {
+          "$ref": "#/definitions/Owner"
+        }
+      }
+    },
+    "Owner": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "alex",
+            "john",
+            "tom"
+          ]
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
+    "Address": {
+      "type": "object",
+      "required": [
+        "housing",
+        "zipCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "enum": [
+            "LA"
+          ]
+        },
+        "housing": {
+          "type": "integer"
+        },
+        "zipCode": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

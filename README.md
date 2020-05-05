@@ -3,9 +3,9 @@
 - [X] all required request parameters in the old specification are present in the new one
 - [X] all request parameters in the old specification have the same type in the new one
 - [X] all request models via $ref don't have any differences
-- [ ] all response attributes in the old specification are present in the new one
-- [ ] all response attributes in the old specification have the same type in the new one
-- [ ] all response models via $ref don't have any differences
+- [X] all response attributes in the old specification are present in the new one
+- [X] all response attributes in the old specification have the same type in the new one
+- [X] all response models via $ref don't have any differences
 - [X] enums validation
 - [X] arrays type support
 - [X] recursive refs
@@ -20,3 +20,4 @@ TODO MINOR THINGS
 - [ ] reusable enums
 - [ ] array of anonymous objects
 - [ ] definition in V1 with object in V2 (both cases)
+- [ ] reusing responses https://swagger.io/docs/specification/2-0/describing-responses/

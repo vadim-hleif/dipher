@@ -11,8 +11,7 @@
             "required": true,
             "type": "string",
             "enum": [
-              "desc",
-              "asc"
+              "desc"
             ]
           }
         ],

@@ -9,11 +9,10 @@
             "in": "query",
             "description": "check enums",
             "required": true,
-            "type": "string",
-            "enum": [
-              "desc",
-              "asc"
-            ]
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {

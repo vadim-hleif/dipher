@@ -1,0 +1,13 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+        ],
+        "responses": {
+        }
+      }
+    }
+  }
+}

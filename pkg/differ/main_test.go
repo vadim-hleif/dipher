@@ -17,7 +17,7 @@ type test struct {
 // REQUEST OBJECTS
 func TestDiff_should_detect_removing_enum_value_in_any_request_object_property(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params-object/removed_value_from_old_enum",
+		specsPath: "request/params-object/removed_value_from_old_enum",
 		want: []error{
 			errors.New("param name mustn't remove value alex from enum"),
 		},
@@ -26,7 +26,7 @@ func TestDiff_should_detect_removing_enum_value_in_any_request_object_property(t
 
 func TestDiff_should_detect_adding_enum_in_any_request_object_roperty(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params-object/adding_enum_to_old_value_without_enum",
+		specsPath: "request/params-object/adding_enum_to_old_value_without_enum",
 		want: []error{
 			errors.New("param age mustn't have enum"),
 		},
@@ -35,7 +35,7 @@ func TestDiff_should_detect_adding_enum_in_any_request_object_roperty(t *testing
 
 func TestDiff_should_detect_type_changing_in_the_any_request_object_property(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params-object/type_changing",
+		specsPath: "request/params-object/type_changing",
 		want: []error{
 			errors.New("param id mustn't change type from integer to string"),
 		},
@@ -44,7 +44,7 @@ func TestDiff_should_detect_type_changing_in_the_any_request_object_property(t *
 
 func TestDiff_should_detect_required_property_removing_in_the_request_object(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params-object/required_property_deletion",
+		specsPath: "request/params-object/required_property_deletion",
 		want: []error{
 			errors.New("required param id mustn't be deleted"),
 		},
@@ -53,18 +53,9 @@ func TestDiff_should_detect_required_property_removing_in_the_request_object(t *
 
 func TestDiff_should_detect_new_required_property_in_the_request_object(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params-object/required_property_adding",
+		specsPath: "request/params-object/required_property_adding",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
-		},
-	})
-}
-
-func TestDiff_should_detect_removing_enum_value_in_any_request_param(t *testing.T) {
-	runTest(t, test{
-		specsPath: "params/removed_value_from_old_enum",
-		want: []error{
-			errors.New("param sort mustn't remove value asc from enum"),
 		},
 	})
 }
@@ -72,9 +63,19 @@ func TestDiff_should_detect_removing_enum_value_in_any_request_param(t *testing.
 // END REQUEST OBJECTS
 
 // REQUEST PARAMS
+
+func TestDiff_should_detect_removing_enum_value_in_any_request_param(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/request/params/removed_value_from_old_enum",
+		want: []error{
+			errors.New("param sort mustn't remove value asc from enum"),
+		},
+	})
+}
+
 func TestDiff_should_detect_adding_enum_in_any_request_param(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/adding_enum_to_old_value_without_enum",
+		specsPath: "/request/params/adding_enum_to_old_value_without_enum",
 		want: []error{
 			errors.New("param sort mustn't have enum"),
 		},
@@ -83,7 +84,7 @@ func TestDiff_should_detect_adding_enum_in_any_request_param(t *testing.T) {
 
 func TestDiff_should_detect_required_property_removing_in_the_any_request_param(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/required_param_deletion",
+		specsPath: "/request/params/required_param_deletion",
 		want: []error{
 			errors.New("required param sort mustn't be deleted"),
 		},
@@ -92,7 +93,7 @@ func TestDiff_should_detect_required_property_removing_in_the_any_request_param(
 
 func TestDiff_should_detect_new_required_param_in_the_request(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/new_required_param",
+		specsPath: "/request/params/new_required_param",
 		want: []error{
 			errors.New("new required param filter mustn't be added"),
 		},
@@ -101,7 +102,7 @@ func TestDiff_should_detect_new_required_param_in_the_request(t *testing.T) {
 
 func TestDiff_should_detect_marking_old_param_as_required(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/mark_old_param_as_required",
+		specsPath: "/request/params/mark_old_param_as_required",
 		want: []error{
 			errors.New("param sort mustn't be required because it wasn't be required"),
 		},
@@ -110,7 +111,7 @@ func TestDiff_should_detect_marking_old_param_as_required(t *testing.T) {
 
 func TestDiff_should_detect_type_changing_in_the_any_request_param(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/type_changing",
+		specsPath: "/request/params/type_changing",
 		want: []error{
 			errors.New("param sort mustn't change type from string to integer"),
 		},
@@ -119,7 +120,7 @@ func TestDiff_should_detect_type_changing_in_the_any_request_param(t *testing.T)
 
 func TestDiff_should_detect_type_chaning_in_array(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/type_changing_in_array",
+		specsPath: "/request/params/type_changing_in_array",
 		want: []error{
 			errors.New("param sort mustn't change type from string to integer"),
 		},
@@ -127,7 +128,7 @@ func TestDiff_should_detect_type_chaning_in_array(t *testing.T) {
 }
 func TestDiff_should_detect_adding_enum_old_value_array_value_without_enum(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/adding_enum_to_old_value_array_value_without_enum",
+		specsPath: "/request/params/adding_enum_to_old_value_array_value_without_enum",
 		want: []error{
 			errors.New("param sort mustn't have enum"),
 		},
@@ -136,7 +137,7 @@ func TestDiff_should_detect_adding_enum_old_value_array_value_without_enum(t *te
 
 func TestDiff_should_detect_removing_value_from_old_array_enum(t *testing.T) {
 	runTest(t, test{
-		specsPath: "params/removed_value_from_old_array_enum",
+		specsPath: "/request/params/removed_value_from_old_array_enum",
 		want: []error{
 			errors.New("param sort mustn't remove value desc from enum"),
 		},
@@ -148,7 +149,7 @@ func TestDiff_should_detect_removing_value_from_old_array_enum(t *testing.T) {
 // REQUEST OBJECTS WITH DEFINITION
 func TestDiff_should_detect_new_required_property_in_the_request_object_definition(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/required_property_adding",
+		specsPath: "/request/definitions/required_property_adding",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
 		},
@@ -157,7 +158,7 @@ func TestDiff_should_detect_new_required_property_in_the_request_object_definiti
 
 func TestDiff_should_detect_required_property_removing_in_the_request_object_definition(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/required_property_deletion",
+		specsPath: "/request/definitions/required_property_deletion",
 		want: []error{
 			errors.New("required param name mustn't be deleted"),
 		},
@@ -166,7 +167,7 @@ func TestDiff_should_detect_required_property_removing_in_the_request_object_def
 
 func TestDiff_should_detect_type_changing_in_the_any_request_object_property_definition(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/type_changing",
+		specsPath: "/request/definitions/type_changing",
 		want: []error{
 			errors.New("param id mustn't change type from integer to string"),
 		},
@@ -175,7 +176,7 @@ func TestDiff_should_detect_type_changing_in_the_any_request_object_property_def
 
 func TestDiff_should_detect_adding_enum_in_any_request_object_property_definition(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/adding_enum_to_old_value_without_enum",
+		specsPath: "/request/definitions/adding_enum_to_old_value_without_enum",
 		want: []error{
 			errors.New("param age mustn't have enum"),
 		},
@@ -184,7 +185,7 @@ func TestDiff_should_detect_adding_enum_in_any_request_object_property_definitio
 
 func TestDiff_should_detect_removing_enum_value_in_any_request_object_property_definition(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/removed_value_from_old_enum",
+		specsPath: "/request/definitions/removed_value_from_old_enum",
 		want: []error{
 			errors.New("param name mustn't remove value alex from enum"),
 		},
@@ -193,7 +194,7 @@ func TestDiff_should_detect_removing_enum_value_in_any_request_object_property_d
 
 func TestDiff_should_detect_object_definition_in_any_path(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/custom_def_path",
+		specsPath: "/request/definitions/custom_def_path",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
 		},
@@ -202,14 +203,14 @@ func TestDiff_should_detect_object_definition_in_any_path(t *testing.T) {
 
 func TestDiff_should_compare_models_by_different_refs(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/same_models_with_different_names",
+		specsPath: "/request/definitions/same_models_with_different_names",
 		want:      make([]error, 0),
 	})
 }
 
 func TestDiff_should_detect_adding_enum_in_any_request_object_property_definition_array(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/adding_enum_to_old_array_value_without_enum",
+		specsPath: "/request/definitions/adding_enum_to_old_array_value_without_enum",
 		want: []error{
 			errors.New("param age mustn't have enum"),
 		},
@@ -218,7 +219,7 @@ func TestDiff_should_detect_adding_enum_in_any_request_object_property_definitio
 
 func TestDiff_should_detect_diff_in_models_with_different_refs(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/different_models_with_different_names",
+		specsPath: "/request/definitions/different_models_with_different_names",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
 			errors.New("param age mustn't have enum"),
@@ -231,7 +232,7 @@ func TestDiff_should_detect_diff_in_models_with_different_refs(t *testing.T) {
 
 func TestDiff_should_detect_diff_in_models_with_different_refs_array(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/different_models_with_different_names_array",
+		specsPath: "/request/definitions/different_models_with_different_names_array",
 		want: []error{
 			errors.New("param age mustn't be required because it wasn't be required"),
 			errors.New("param age mustn't have enum"),
@@ -244,7 +245,7 @@ func TestDiff_should_detect_diff_in_models_with_different_refs_array(t *testing.
 
 func TestDiff_should_detect_diff_in_nested_refs(t *testing.T) {
 	runTest(t, test{
-		specsPath: "definitions/models_with_recursive_refs",
+		specsPath: "/request/definitions/models_with_recursive_refs",
 		want: []error{
 			errors.New("param zipCode mustn't be required because it wasn't be required"),
 			errors.New("param city mustn't remove value NY from enum"),
@@ -277,6 +278,43 @@ func TestDiff_should_detect_method_removing_in_the_any_path(t *testing.T) {
 }
 
 // END RESOURCES AND VERBS TEST CASES
+
+// RESPONSE
+func TestDiff_should_detect_code_node_removing_in_response(t *testing.T) {
+	runTest(t, test{
+		specsPath: "response/code_removing",
+		want: []error{
+			errors.New("response with code 200 mustn't be removed"),
+		},
+	})
+}
+
+func TestDiff_should_detect_type_changes_in_response_definition(t *testing.T) {
+	runTest(t, test{
+		specsPath: "response/definitions/type_changing",
+		want: []error{
+			errors.New("response field id mustn't change type from string to integer"),
+		},
+	})
+}
+
+func TestDiff_should_detect_field_removing_in_response_definition(t *testing.T) {
+	runTest(t, test{
+		specsPath: "response/definitions/field_removing",
+		want: []error{
+			errors.New("response field id mustn't be deleted"),
+		},
+	})
+}
+
+func TestDiff_should_detect_diff_in_response_nested_refs(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/response/definitions/models_with_recursive_refs",
+		want: []error{
+			errors.New("response field id mustn't be deleted"),
+		},
+	})
+}
 
 // test helper
 func runTest(t *testing.T, tt test) {

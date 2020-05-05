@@ -7,13 +7,14 @@
           {
             "name": "sort",
             "in": "query",
-            "description": "check enums",
             "required": true,
-            "type": "string",
-            "enum": [
-              "desc",
-              "asc"
-            ]
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
