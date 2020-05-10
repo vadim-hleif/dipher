@@ -1,14 +1,38 @@
 package cmd
 
 import (
+	"differ/internal/helper"
+	"differ/pkg/differ"
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "differ",
 	Short: "Swagger diff for breaking changes detect",
+	Run: func(cmd *cobra.Command, args []string) {
+		specV1 := helper.ReadSpec(args[0])
+		specV2 := helper.ReadSpec(args[1])
+
+		diff := differ.Diff(specV1, specV2)
+
+		if len(diff) > 0 {
+			log.Fatalln("breaking changes detected", helper.MakeReport(diff))
+		} else {
+			log.Println("specs don't have breaking changes")
+		}
+
+	},
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 2 {
+			return errors.New("requires two swagger specification")
+		}
+
+		return nil
+	},
 }
 
 func init() {
