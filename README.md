@@ -1,4 +1,7 @@
-[![Build Status](https://travis-ci.com/vadim-hleif/godiffer.svg?branch=master)](https://travis-ci.com/vadim-hleif/godiffer) [![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/godiffer)](https://goreportcard.com/report/github.com/vadim-hleif/godiffer)
+[![Build Status](https://travis-ci.com/vadim-hleif/godiffer.svg?branch=master)](https://travis-ci.com/vadim-hleif/godiffer)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/godiffer)](https://goreportcard.com/report/github.com/vadim-hleif/godiffer)
+[![codecov](https://codecov.io/gh/vadim-hleif/godiffer/branch/master/graph/badge.svg)](https://codecov.io/gh/vadim-hleif/godiffer)
+[![codebeat badge](https://codebeat.co/badges/8aab8f2d-7652-46f0-a244-9f80dbed64b2)](https://codebeat.co/projects/github-com-vadim-hleif-godiffer-master)
 
 ***
 - [X] all path and verb combinations in the old specification are present in the new one
