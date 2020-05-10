@@ -5,6 +5,9 @@ import (
 	"strings"
 )
 
+// Diff returns slice with errors if any breaking changes was founded
+//
+// returns empty array if there aren't any errors
 func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []error {
 	errs := make([]error, 0)
 	pathsV2 := specV2["paths"].(map[string]interface{})

@@ -1,4 +1,4 @@
-package helper
+package cmd
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ReadSpec(path string) map[string]interface{} {
+func readSpec(path string) map[string]interface{} {
 	file, _ := ioutil.ReadFile(path)
 	var spec map[string]interface{}
 	err := json.Unmarshal(file, &spec)
@@ -19,7 +19,7 @@ func ReadSpec(path string) map[string]interface{} {
 	return spec
 }
 
-func MakeReport(errs []error) string {
+func makeReport(errs []error) string {
 	var report strings.Builder
 
 	for _, difference := range errs {

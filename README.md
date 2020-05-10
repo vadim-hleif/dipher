@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/vadim-hleif/godiffer.svg?branch=master)](https://travis-ci.com/vadim-hleif/godiffer) [![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/godiffer)](https://goreportcard.com/report/github.com/vadim-hleif/godiffer)
+
+***
 - [X] all path and verb combinations in the old specification are present in the new one
 - [X] no request parameters are required in the new specification that were not required in the old one
 - [X] all required request parameters in the old specification are present in the new one
