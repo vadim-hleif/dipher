@@ -8,6 +8,16 @@ before_install:
 
 script:
   - go test ./... -race -coverprofile=coverage.txt -covermode=atomic
+  - curl -sfL https://git.io/goreleaser | sh -s -- check # check goreleaser config for deprecations
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+# calls goreleaser
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux
