@@ -2,7 +2,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/godiffer)](https://goreportcard.com/report/github.com/vadim-hleif/godiffer)
 [![codecov](https://codecov.io/gh/vadim-hleif/godiffer/branch/master/graph/badge.svg)](https://codecov.io/gh/vadim-hleif/godiffer)
 [![codebeat badge](https://codebeat.co/badges/8aab8f2d-7652-46f0-a244-9f80dbed64b2)](https://codebeat.co/projects/github-com-vadim-hleif-godiffer-master)
-
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadim-hleif/godiffer)
 ***
 - [X] all path and verb combinations in the old specification are present in the new one
 - [X] no request parameters are required in the new specification that were not required in the old one
