@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+var safeMode bool
+
 var rootCmd = &cobra.Command{
 	Use:   "differ",
 	Short: "Swagger diff for breaking changes detect",
@@ -19,7 +21,11 @@ var rootCmd = &cobra.Command{
 		diff := differ.Diff(specV1, specV2)
 
 		if len(diff) > 0 {
-			log.Fatalln("breaking changes detected", makeReport(diff))
+			if safeMode {
+				log.Println("breaking changes detected", makeReport(diff))
+			} else {
+				log.Fatalln("breaking changes detected", makeReport(diff))
+			}
 		} else {
 			log.Println("specs don't have breaking changes")
 		}
@@ -36,6 +42,8 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.Flags().BoolVarP(&safeMode, "safe-mode",
+		"s", false, "In such mode command won't fail, just print breaking changes")
 }
 
 var versionCmd = &cobra.Command{
