@@ -1,4 +1,4 @@
-module differ
+module dipher
 
 go 1.14
 

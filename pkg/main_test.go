@@ -1,4 +1,4 @@
-package differ
+package pkg
 
 import (
 	"encoding/json"

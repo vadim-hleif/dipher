@@ -1,7 +1,7 @@
 package main
 
 import (
-	"differ/cmd"
+	"dipher/cmd"
 )
 
 func main() {

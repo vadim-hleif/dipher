@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"differ/pkg/differ"
+	"dipher/pkg"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -20,7 +20,7 @@ func readSpec(path string) map[string]interface{} {
 	return spec
 }
 
-func makeReport(errs []differ.Report) string {
+func makeOutput(errs []pkg.Report) string {
 	var report strings.Builder
 
 	for jsonPath, errs := range toMap(errs) {
@@ -35,7 +35,7 @@ func makeReport(errs []differ.Report) string {
 	return report.String()
 }
 
-func toMap(errs []differ.Report) map[string][]error {
+func toMap(errs []pkg.Report) map[string][]error {
 	result := map[string][]error{}
 	for _, value := range errs {
 		_, ok := result[value.JSONPath]
