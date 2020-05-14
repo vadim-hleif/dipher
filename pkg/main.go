@@ -31,18 +31,15 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report
 		}
 
 		for methodV1, m := range urlNodeV1.(map[string]interface{}) {
-			var jsonPath strings.Builder
-			jsonPath.WriteString("$.")
-			jsonPath.WriteString(url)
-			jsonPath.WriteString(".")
-			jsonPath.WriteString(methodV1)
+			methodJsonPath := fmt.Sprintf("$.%v.%v", url, methodV1)
+
 			methodNodeV1 := m.(map[string]interface{})
 			methodNodeV2 := getNode(urlNodeV2, methodV1)
 
 			if methodNodeV2 == nil {
 				errs = append(errs, Report{
 					Err:      fmt.Errorf("%v method of %v path mustn't be removed", methodV1, url),
-					JSONPath: jsonPath.String(),
+					JSONPath: methodJsonPath,
 				})
 				continue
 			}
@@ -51,10 +48,7 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report
 			paramsV2 := methodNodeV2["parameters"].([]interface{})
 
 			for _, p := range paramsV1 {
-
-				var localParamPath strings.Builder
-				localParamPath.WriteString(jsonPath.String())
-				localParamPath.WriteString(".parameters")
+				localParamPath := fmt.Sprintf("%v.parameters", methodJsonPath)
 
 				paramV1 := p.(map[string]interface{})
 				paramV2 := findParam(paramsV2, paramV1["name"].(string))
@@ -62,22 +56,23 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report
 				typeV1, _ := getTypeProp(paramV1)
 				switch typeV1 {
 				case "reference", "object":
-					errs = compareObjectParams(paramV1, paramV2, specV1, specV2, errs, localParamPath)
+					// TODO create type of struct with specs in props instead of passing across all chain
+					errs = append(errs,
+						toReports(compareObjectParams(paramV1, paramV2, specV1, specV2), localParamPath)...)
 				default:
-					errs = comparePrimitiveParams(paramV1, paramV2, errs, localParamPath)
+					errs = append(errs,
+						toReports(comparePrimitiveParams(paramV1, paramV2), localParamPath)...)
 				}
 			}
 
 			for _, p := range paramsV2 {
-				var localParamPath strings.Builder
-				localParamPath.WriteString(jsonPath.String())
-				localParamPath.WriteString(".parameters")
+				localParamPath := fmt.Sprintf("%v.parameters", methodJsonPath)
 
 				paramV2 := p.(map[string]interface{})
 				if findParam(paramsV1, paramV2["name"].(string)) == nil && getRequiredProp(paramV2) {
 					errs = append(errs, Report{
 						Err:      fmt.Errorf("new required param %v mustn't be added", paramV2["name"].(string)),
-						JSONPath: localParamPath.String(),
+						JSONPath: localParamPath,
 					})
 				}
 			}
@@ -85,9 +80,7 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report
 			responsesV1 := methodNodeV1["responses"].(map[string]interface{})
 			responsesV2 := methodNodeV2["responses"].(map[string]interface{})
 
-			var localResponsesPath strings.Builder
-			localResponsesPath.WriteString(jsonPath.String())
-			localResponsesPath.WriteString(".responses")
+			localResponsesPath := fmt.Sprintf("%v.responses", methodJsonPath)
 
 			for code, c := range responsesV1 {
 				responseV1 := c.(map[string]interface{})
@@ -96,7 +89,7 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report
 				if !ok {
 					errs = append(errs, Report{
 						Err:      fmt.Errorf("response with code %v mustn't be removed", code),
-						JSONPath: localResponsesPath.String(),
+						JSONPath: localResponsesPath,
 					})
 				} else {
 					errs = compareResponseObjects(responseV1, responseV2, specV1, specV2, errs, localResponsesPath)
@@ -108,22 +101,29 @@ func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report
 	return errs
 }
 
-func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]interface{}, errs []Report, jsonPath strings.Builder) []Report {
+func toReports(err []error, localParamPath string) []Report {
+	temp := make([]Report, len(err))
+
+	for i := 0; i < len(err); i++ {
+		temp[i] = Report{
+			Err:      err[i],
+			JSONPath: localParamPath,
+		}
+	}
+	return temp
+}
+
+func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]interface{}) []error {
+	errs := make([]error, 0)
 	isParamV1Required := getRequiredProp(paramV1)
 	isParamV2Required := getRequiredProp(paramV2)
 
 	if paramV2 == nil && isParamV1Required {
-		return append(errs, Report{
-			Err:      fmt.Errorf("required param %v mustn't be deleted", paramV1["name"].(string)),
-			JSONPath: jsonPath.String(),
-		})
+		return append(errs, fmt.Errorf("required param %v mustn't be deleted", paramV1["name"].(string)))
 	}
 
 	if !isParamV1Required && isParamV2Required {
-		errs = append(errs, Report{
-			Err:      fmt.Errorf("param %v mustn't be required because it wasn't be required", paramV1["name"].(string)),
-			JSONPath: jsonPath.String(),
-		})
+		errs = append(errs, fmt.Errorf("param %v mustn't be required because it wasn't be required", paramV1["name"].(string)))
 	}
 
 	enumV1 := getEnum(paramV1)
@@ -131,17 +131,11 @@ func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]i
 
 	if !(enumV2 == nil && enumV1 == nil) {
 		if enumV1 == nil && enumV2 != nil {
-			errs = append(errs, Report{
-				Err:      fmt.Errorf("param %v mustn't have enum", paramV1["name"].(string)),
-				JSONPath: jsonPath.String(),
-			})
+			errs = append(errs, fmt.Errorf("param %v mustn't have enum", paramV1["name"].(string)))
 		}
 
 		compareAndApply(enumV1, enumV2, func(name interface{}) {
-			errs = append(errs, Report{
-				Err:      fmt.Errorf("param %v mustn't remove value %v from enum", paramV1["name"].(string), name),
-				JSONPath: jsonPath.String(),
-			})
+			errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", paramV1["name"].(string), name))
 		})
 	}
 
@@ -149,17 +143,14 @@ func comparePrimitiveParams(paramV1 map[string]interface{}, paramV2 map[string]i
 	typeV2, _ := getTypeProp(paramV2)
 
 	if typeV1 != typeV2 {
-		errs = append(errs, Report{
-			Err:      fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2),
-			JSONPath: jsonPath.String(),
-		})
+		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
 	}
 
 	return errs
 }
 
 func compareResponseObjects(responseV1 map[string]interface{}, responseV2 map[string]interface{},
-	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []Report, jsonPath strings.Builder) []Report {
+	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []Report, jsonPath string) []Report {
 	schemaV1 := getNode(responseV1, "schema")
 	if schemaV1 == nil {
 		schemaV1 = responseV1
@@ -193,13 +184,13 @@ func compareResponseObjects(responseV1 map[string]interface{}, responseV2 map[st
 			if typeV1 != typeV2 {
 				errs = append(errs, Report{
 					Err:      fmt.Errorf("response field %v mustn't change type from %v to %v", nameV1, typeV1, typeV2),
-					JSONPath: jsonPath.String(),
+					JSONPath: jsonPath,
 				})
 			}
 		} else {
 			errs = append(errs, Report{
 				Err:      fmt.Errorf("response field %v mustn't be deleted", nameV1),
-				JSONPath: jsonPath.String(),
+				JSONPath: jsonPath,
 			})
 		}
 
@@ -207,8 +198,9 @@ func compareResponseObjects(responseV1 map[string]interface{}, responseV2 map[st
 	return errs
 }
 
-func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]interface{},
-	specV1 map[string]interface{}, specV2 map[string]interface{}, errs []Report, jsonPath strings.Builder) []Report {
+func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]interface{}, specV1 map[string]interface{}, specV2 map[string]interface{}) []error {
+	errs := make([]error, 0)
+
 	schemaV1 := getNode(paramV1, "schema")
 	if schemaV1 == nil {
 		schemaV1 = paramV1
@@ -221,24 +213,18 @@ func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]inte
 	typeV1, _ := getTypeProp(paramV1)
 	if typeV1 == "reference" {
 		return compareObjectParams(getModelByRef(paramV1, specV1), getModelByRef(paramV2, specV2),
-			specV1, specV2, errs, jsonPath)
+			specV1, specV2)
 	}
 
 	requiredPropsV1 := getRequiredProps(schemaV1)
 	requiredPropsV2 := getRequiredProps(schemaV2)
 
 	compareAndApply(requiredPropsV2, requiredPropsV1, func(name interface{}) {
-		errs = append(errs, Report{
-			Err:      fmt.Errorf("param %v mustn't be required because it wasn't be required", name),
-			JSONPath: jsonPath.String(),
-		})
+		errs = append(errs, fmt.Errorf("param %v mustn't be required because it wasn't be required", name))
 	})
 
 	compareAndApply(requiredPropsV1, requiredPropsV2, func(name interface{}) {
-		errs = append(errs, Report{
-			Err:      fmt.Errorf("required param %v mustn't be deleted", name),
-			JSONPath: jsonPath.String(),
-		})
+		errs = append(errs, fmt.Errorf("required param %v mustn't be deleted", name))
 	})
 
 	pV2 := getNode(schemaV2, "properties")
@@ -251,15 +237,12 @@ func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]inte
 			typeV2, _ := getTypeProp(propsV2)
 
 			if typeV1 == "reference" {
-				errs = compareObjectParams(getModelByRef(propsV1, specV1), getModelByRef(propsV2, specV2),
-					specV1, specV2, errs, jsonPath)
+				errs = append(errs,
+					compareObjectParams(getModelByRef(propsV1, specV1), getModelByRef(propsV2, specV2), specV1, specV2)...)
 			}
 
 			if typeV1 != typeV2 {
-				errs = append(errs, Report{
-					Err:      fmt.Errorf("param %v mustn't change type from %v to %v", nameV1, typeV1, typeV2),
-					JSONPath: jsonPath.String(),
-				})
+				errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", nameV1, typeV1, typeV2))
 			}
 
 			enumV1 := getEnum(propsV1)
@@ -269,17 +252,11 @@ func compareObjectParams(paramV1 map[string]interface{}, paramV2 map[string]inte
 			}
 
 			if enumV1 == nil && enumV2 != nil {
-				errs = append(errs, Report{
-					Err:      fmt.Errorf("param %v mustn't have enum", nameV1),
-					JSONPath: jsonPath.String(),
-				})
+				errs = append(errs, fmt.Errorf("param %v mustn't have enum", nameV1))
 			}
 
 			compareAndApply(enumV1, enumV2, func(name interface{}) {
-				errs = append(errs, Report{
-					Err:      fmt.Errorf("param %v mustn't remove value %v from enum", nameV1, name),
-					JSONPath: jsonPath.String(),
-				})
+				errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", nameV1, name))
 			})
 		}
 
