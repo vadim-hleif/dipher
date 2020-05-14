@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.com/vadim-hleif/godiffer.svg?branch=master)](https://travis-ci.com/vadim-hleif/godiffer)
-[![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/godiffer)](https://goreportcard.com/report/github.com/vadim-hleif/godiffer)
-[![codecov](https://codecov.io/gh/vadim-hleif/godiffer/branch/master/graph/badge.svg)](https://codecov.io/gh/vadim-hleif/godiffer)
-[![codebeat badge](https://codebeat.co/badges/8aab8f2d-7652-46f0-a244-9f80dbed64b2)](https://codebeat.co/projects/github-com-vadim-hleif-godiffer-master)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadim-hleif/godiffer)
+[![Build Status](https://travis-ci.com/vadim-hleif/dipher.svg?branch=master)](https://travis-ci.com/vadim-hleif/dipher)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/dipher)](https://goreportcard.com/report/github.com/vadim-hleif/dipher)
+[![codecov](https://codecov.io/gh/vadim-hleif/dipher/branch/master/graph/badge.svg)](https://codecov.io/gh/vadim-hleif/dipher)
+[![codebeat badge](https://codebeat.co/badges/1ac4289a-df2b-4d0e-adc9-c54ea12a78c6)](https://codebeat.co/projects/github-com-vadim-hleif-dipher-master)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadim-hleif/dipher)
 ***
 - [X] all path and verb combinations in the old specification are present in the new one
 - [X] no request parameters are required in the new specification that were not required in the old one
