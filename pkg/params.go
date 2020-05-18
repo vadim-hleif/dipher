@@ -35,33 +35,36 @@ func (dipher *dipher) compareParams(paramV1 map[string]interface{}, paramV2 map[
 	for nameV1, p := range getNode(schemaV1, "properties") {
 		propsV1 := p.(map[string]interface{})
 		propsV2, ok := pV2[nameV1].(map[string]interface{})
-		if ok {
-			typeV1, _ := getTypeProp(propsV1)
-			typeV2, _ := getTypeProp(propsV2)
 
-			if typeV1 == "reference" {
-				errs = append(errs,
-					dipher.compareParams(getModelByRef(propsV1, dipher.specV1), getModelByRef(propsV2, dipher.specV2))...)
-			}
-
-			if typeV1 != typeV2 {
-				errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", nameV1, typeV1, typeV2))
-			}
-
-			enumV1 := getEnum(propsV1)
-			enumV2 := getEnum(propsV2)
-			if enumV2 == nil && enumV1 == nil {
-				continue
-			}
-
-			if enumV1 == nil && enumV2 != nil {
-				errs = append(errs, fmt.Errorf("param %v mustn't have enum", nameV1))
-			}
-
-			compareAndApply(enumV1, enumV2, func(name interface{}) {
-				errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", nameV1, name))
-			})
+		if !ok {
+			continue
 		}
+
+		typeV1, _ := getTypeProp(propsV1)
+		typeV2, _ := getTypeProp(propsV2)
+
+		if typeV1 == "reference" {
+			errs = append(errs,
+				dipher.compareParams(getModelByRef(propsV1, dipher.specV1), getModelByRef(propsV2, dipher.specV2))...)
+		}
+
+		if typeV1 != typeV2 {
+			errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", nameV1, typeV1, typeV2))
+		}
+
+		enumV1 := getEnum(propsV1)
+		enumV2 := getEnum(propsV2)
+		if enumV2 == nil && enumV1 == nil {
+			continue
+		}
+
+		if enumV1 == nil && enumV2 != nil {
+			errs = append(errs, fmt.Errorf("param %v mustn't have enum", nameV1))
+		}
+
+		compareAndApply(enumV1, enumV2, func(name interface{}) {
+			errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", nameV1, name))
+		})
 
 	}
 	return errs
