@@ -69,6 +69,13 @@ func TestDiff_should_detect_new_required_property_in_the_request_object(t *testi
 
 // REQUEST PARAMS
 
+func TestDiff_should_handle_case_with_schema_and_array_def_in_params(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/request/params/schema_with_array",
+		want:      []Report{},
+	})
+}
+
 func TestDiff_should_detect_removing_enum_value_in_any_request_param(t *testing.T) {
 	runTest(t, test{
 		specsPath: "/request/params/removed_value_from_old_enum",
@@ -284,7 +291,7 @@ func TestDiff_should_detect_diff_in_models_with_different_refs_array(t *testing.
 
 func TestDiff_should_detect_diff_in_nested_refs(t *testing.T) {
 	runTest(t, test{
-		specsPath: "/request/definitions/models_with_recursive_refs",
+		specsPath: "/request/definitions/models_with_nested_refs",
 		want: []Report{{
 			Err:      errors.New("param zipCode mustn't be required because it wasn't be required"),
 			JSONPath: "$./pet.post.parameters",
@@ -301,6 +308,20 @@ func TestDiff_should_detect_diff_in_nested_refs(t *testing.T) {
 			Err:      errors.New("required param city mustn't be deleted"),
 			JSONPath: "$./pet.post.parameters",
 		}},
+	})
+}
+
+func TestDiff_should_handle_self_reference(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/request/definitions/models_with_self_ref",
+		want:      []Report{},
+	})
+}
+
+func TestDiff_should_handle_case_with_recursive_refs_between_chain_of_models(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/request/definitions/two_models_with_recursive_refs",
+		want:      []Report{},
 	})
 }
 
@@ -393,6 +414,27 @@ func TestDiff_should_detect_diff_in_response_models_with_different_refs_array(t 
 				Err:      errors.New("response field name mustn't change type from string to integer"),
 				JSONPath: "$./pet.post.responses",
 			}},
+	})
+}
+
+func TestDiff_should_handle_case_with_schema_and_array_def(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/response/definitions/schema_with_array",
+		want:      []Report{},
+	})
+}
+
+func TestDiff_should_handle_self_reference_response(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/response/definitions/models_with_self_ref",
+		want:      []Report{},
+	})
+}
+
+func TestDiff_should_handle_case_with_recursive_refs_between_chain_of_models_response(t *testing.T) {
+	runTest(t, test{
+		specsPath: "/response/definitions/two_models_with_recursive_refs",
+		want:      []Report{},
 	})
 }
 

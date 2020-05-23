@@ -3,9 +3,28 @@ package pkg
 import "fmt"
 
 type dipher struct {
-	specV1  map[string]interface{}
-	specV2  map[string]interface{}
-	reports []Report
+	specV1       map[string]interface{}
+	specV2       map[string]interface{}
+	reports      []Report
+	checkedNodes []string
+}
+
+func (dipher *dipher) dropRefs() {
+	dipher.checkedNodes = dipher.checkedNodes[:0]
+}
+
+func (dipher *dipher) addDefs(ref ...string) {
+	dipher.checkedNodes = append(dipher.checkedNodes, ref...)
+}
+
+func (dipher *dipher) containsDef(ref string) bool {
+	for _, r := range dipher.checkedNodes {
+		if ref == r {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (dipher *dipher) addErr(report ...Report) {
@@ -81,7 +100,7 @@ func (dipher *dipher) checkParams(paramsV1 []interface{}, paramsV2 []interface{}
 		paramV1 := p.(map[string]interface{})
 		paramV2 := findParam(paramsV2, paramV1["name"].(string))
 
-		typeV1, _ := getTypeProp(paramV1)
+		typeV1, _, _ := getMetadata(paramV1)
 		switch typeV1 {
 		case "reference", "object":
 			dipher.addErr(toReports(dipher.compareParams(paramV1, paramV2), localParamPath)...)

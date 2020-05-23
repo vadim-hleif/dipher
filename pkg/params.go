@@ -1,6 +1,8 @@
 package pkg
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (dipher *dipher) compareParams(paramV1 map[string]interface{}, paramV2 map[string]interface{}) []error {
 	errs := make([]error, 0)
@@ -14,9 +16,14 @@ func (dipher *dipher) compareParams(paramV1 map[string]interface{}, paramV2 map[
 		schemaV2 = paramV2
 	}
 
-	typeV1, _ := getTypeProp(paramV1)
+	typeV1, _, refV1 := getMetadata(paramV1)
+	_, _, refV2 := getMetadata(paramV2)
 	if typeV1 == "reference" {
-		return dipher.compareParams(getModelByRef(paramV1, dipher.specV1), getModelByRef(paramV2, dipher.specV2))
+		modelV1 := getModelByRef(refV1, dipher.specV1)
+		modelV2 := getModelByRef(refV2, dipher.specV2)
+
+		return dipher.compareParams(modelV1, modelV2)
+
 	}
 
 	requiredPropsV1 := getRequiredProps(schemaV1)
@@ -40,12 +47,18 @@ func (dipher *dipher) compareParams(paramV1 map[string]interface{}, paramV2 map[
 			continue
 		}
 
-		typeV1, _ := getTypeProp(propsV1)
-		typeV2, _ := getTypeProp(propsV2)
+		typeV1, _, refV1 := getMetadata(propsV1)
+		typeV2, _, refV2 := getMetadata(propsV2)
 
 		if typeV1 == "reference" {
-			errs = append(errs,
-				dipher.compareParams(getModelByRef(propsV1, dipher.specV1), getModelByRef(propsV2, dipher.specV2))...)
+			modelV1 := getModelByRef(refV1, dipher.specV1)
+			modelV2 := getModelByRef(refV2, dipher.specV2)
+
+			if !dipher.containsDef(refV1) {
+				dipher.addDefs(refV1, refV2)
+				errs = append(errs, dipher.compareParams(modelV1, modelV2)...)
+			}
+
 		}
 
 		if typeV1 != typeV2 {
@@ -67,5 +80,7 @@ func (dipher *dipher) compareParams(paramV1 map[string]interface{}, paramV2 map[
 		})
 
 	}
+
+	dipher.dropRefs()
 	return errs
 }

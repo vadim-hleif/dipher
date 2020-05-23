@@ -26,8 +26,8 @@ func compareSimpleParams(paramV1 map[string]interface{}, paramV2 map[string]inte
 		errs = append(errs, fmt.Errorf("param %v mustn't remove value %v from enum", paramV1["name"].(string), name))
 	})
 
-	typeV1, _ := getTypeProp(paramV1)
-	typeV2, _ := getTypeProp(paramV2)
+	typeV1, _, _ := getMetadata(paramV1)
+	typeV2, _, _ := getMetadata(paramV2)
 
 	if typeV1 != typeV2 {
 		errs = append(errs, fmt.Errorf("param %v mustn't change type from %v to %v", paramV1["name"].(string), typeV1, typeV2))
