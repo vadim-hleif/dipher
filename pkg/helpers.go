@@ -1,6 +1,8 @@
 package pkg
 
-import "strings"
+import (
+	"strings"
+)
 
 // compareAndApply compares every elements from source every element from target
 // and calls cb func with element, that missed is target but exist is source
@@ -52,14 +54,6 @@ func getRequiredProps(node map[string]interface{}) []interface{} {
 }
 
 func getEnum(node map[string]interface{}) []interface{} {
-	if _, isArray := getTypeProp(node); isArray {
-		items := node["items"].(map[string]interface{})
-
-		if enum, ok := items["enum"]; ok {
-			return enum.([]interface{})
-		}
-	}
-
 	value, ok := node["enum"]
 
 	if ok {
@@ -67,55 +61,56 @@ func getEnum(node map[string]interface{}) []interface{} {
 	}
 
 	value, ok = node["schema"]
+	_, isArray, _ := getMetadata(node)
+
 	if ok {
-		schema := value.(map[string]interface{})
-		value, ok := schema["enum"]
-		if ok {
-			return value.([]interface{})
-		}
+		node = value.(map[string]interface{})
+	}
+
+	if isArray {
+		node = node["items"].(map[string]interface{})
+	}
+
+	value, ok = node["enum"]
+	if ok {
+		return value.([]interface{})
 	}
 
 	return nil
 }
 
-func getTypeProp(node map[string]interface{}) (string, bool) {
-	value, ok := node["type"]
+func getMetadata(node map[string]interface{}) (string, bool, string) {
+	value, ok := node["schema"]
+	if ok {
+		node = value.(map[string]interface{})
+	}
+
 	var elType string
+	t, ok := node["type"]
 
 	if ok {
-		elType = value.(string)
+		elType = t.(string)
 	}
 
-	value, ok = node["schema"]
-	if ok {
-		schema := value.(map[string]interface{})
-		value, ok := schema["type"]
-		if ok {
-			elType = value.(string)
-		} else if _, ok := schema["$ref"]; ok {
-			elType = "reference"
-		}
-	}
+	isArray := elType == "array"
+	if isArray {
+		node = node["items"].(map[string]interface{})
 
-	if _, ok := node["$ref"]; ok {
-		elType = "reference"
-	}
-
-	var isArray bool
-	if elType == "array" {
-		isArray = true
-		items := node["items"].(map[string]interface{})
-
-		t, ok := items["type"]
+		t, ok := node["type"]
 
 		if ok {
 			elType = t.(string)
-		} else if _, ok := items["$ref"]; ok {
-			elType = "reference"
 		}
 	}
 
-	return elType, isArray
+	var ref string
+	i, ok := node["$ref"]
+	if ok {
+		ref = i.(string)
+		elType = "reference"
+	}
+
+	return elType, isArray, ref
 }
 
 func findParam(in []interface{}, name string) map[string]interface{} {
@@ -129,18 +124,7 @@ func findParam(in []interface{}, name string) map[string]interface{} {
 	return nil
 }
 
-func getModelByRef(node map[string]interface{}, spec map[string]interface{}) map[string]interface{} {
-	schema, ok := node["schema"].(map[string]interface{})
-	var ref string
-
-	if _, isArray := getTypeProp(node); isArray {
-		ref = node["items"].(map[string]interface{})["$ref"].(string)
-	} else if ok {
-		ref = schema["$ref"].(string)
-	} else {
-		ref = node["$ref"].(string)
-	}
-
+func getModelByRef(ref string, spec map[string]interface{}) map[string]interface{} {
 	paths := strings.Split(ref, "/")
 
 	var currentNode = spec

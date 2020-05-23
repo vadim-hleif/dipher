@@ -1,6 +1,8 @@
 package pkg
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (dipher *dipher) compareResponse(responseV1 map[string]interface{}, responseV2 map[string]interface{}) []error {
 	errs := make([]error, 0)
@@ -14,10 +16,13 @@ func (dipher *dipher) compareResponse(responseV1 map[string]interface{}, respons
 		schemaV2 = responseV2
 	}
 
-	typeV1, _ := getTypeProp(responseV1)
+	typeV1, _, refV1 := getMetadata(responseV1)
 	if typeV1 == "reference" {
-		errs = append(errs,
-			dipher.compareResponse(getModelByRef(responseV1, dipher.specV1), getModelByRef(responseV2, dipher.specV2))...)
+		_, _, refV2 := getMetadata(responseV2)
+		modelV1 := getModelByRef(refV1, dipher.specV1)
+		modelV2 := getModelByRef(refV2, dipher.specV2)
+
+		errs = append(errs, dipher.compareResponse(modelV1, modelV2)...)
 	}
 
 	pV2 := getNode(schemaV2, "properties")
@@ -27,12 +32,18 @@ func (dipher *dipher) compareResponse(responseV1 map[string]interface{}, respons
 		propsV2, ok := pV2[nameV1].(map[string]interface{})
 
 		if ok {
-			typeV1, _ := getTypeProp(propsV1)
-			typeV2, _ := getTypeProp(propsV2)
+			typeV1, _, refV1 := getMetadata(propsV1)
+			typeV2, _, refV2 := getMetadata(propsV2)
 
 			if typeV1 == "reference" {
-				errs = append(errs,
-					dipher.compareResponse(getModelByRef(propsV1, dipher.specV1), getModelByRef(propsV2, dipher.specV2))...)
+				modelV1 := getModelByRef(refV1, dipher.specV1)
+				modelV2 := getModelByRef(refV2, dipher.specV2)
+
+				if !dipher.containsDef(refV1) {
+					dipher.addDefs(refV1, refV2)
+					errs = append(errs, dipher.compareResponse(modelV1, modelV2)...)
+				}
+
 			}
 
 			if typeV1 != typeV2 {
@@ -43,5 +54,7 @@ func (dipher *dipher) compareResponse(responseV1 map[string]interface{}, respons
 		}
 
 	}
+
+	dipher.dropRefs()
 	return errs
 }

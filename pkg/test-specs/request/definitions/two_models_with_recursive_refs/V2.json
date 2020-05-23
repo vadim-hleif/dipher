@@ -1,0 +1,41 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/pet": {
+      "post": {
+        "parameters": [
+          {
+            "name": "create-request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Pet"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "properties": {
+        "friend": {
+          "$ref": "#/definitions/Pet2"
+        }
+      }
+    },
+    "Pet2": {
+      "type": "object",
+      "properties": {
+        "friend": {
+          "$ref": "#/definitions/Pet"
+        }
+      }
+    }
+  }
+}

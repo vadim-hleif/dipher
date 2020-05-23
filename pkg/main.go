@@ -11,8 +11,9 @@ type Report struct {
 // returns empty array if there aren't any errors
 func Diff(specV1 map[string]interface{}, specV2 map[string]interface{}) []Report {
 	dipher := dipher{
-		specV1: specV1,
-		specV2: specV2,
+		specV1:  specV1,
+		specV2:  specV2,
+		reports: make([]Report, 0),
 	}
 
 	return dipher.diff()
