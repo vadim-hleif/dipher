@@ -3,6 +3,10 @@
 [![codecov](https://codecov.io/gh/vadim-hleif/dipher/branch/master/graph/badge.svg)](https://codecov.io/gh/vadim-hleif/dipher)
 [![codebeat badge](https://codebeat.co/badges/1ac4289a-df2b-4d0e-adc9-c54ea12a78c6)](https://codebeat.co/projects/github-com-vadim-hleif-dipher-master)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadim-hleif/dipher)
+[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/vadim-hleif/dipher/pkg)
+
+
+WIP, good README coming soon
 ***
 - [X] all path and verb combinations in the old specification are present in the new one
 - [X] no request parameters are required in the new specification that were not required in the old one
