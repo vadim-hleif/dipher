@@ -9,6 +9,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of dipher",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("0.1")
+		fmt.Println("v0.1.1")
 	},
 }
