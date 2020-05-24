@@ -442,11 +442,11 @@ func TestDiff_should_handle_case_with_recursive_refs_between_chain_of_models_res
 
 // test helper
 func runTest(t *testing.T, tt test) {
-	file, _ := ioutil.ReadFile("test-specs/" + tt.specsPath + "/V1.json")
+	file, _ := ioutil.ReadFile("../test/data/" + tt.specsPath + "/V1.json")
 	var specV1 map[string]interface{}
 	_ = json.Unmarshal(file, &specV1)
 
-	file, _ = ioutil.ReadFile("test-specs/" + tt.specsPath + "/V2.json")
+	file, _ = ioutil.ReadFile("../test/data/" + tt.specsPath + "/V2.json")
 	var specV2 map[string]interface{}
 	_ = json.Unmarshal(file, &specV2)
 
@@ -467,5 +467,19 @@ func runTest(t *testing.T, tt test) {
 
 	if !reflect.DeepEqual(got, tt.want) {
 		t.Errorf("Diff() = %v, want %v", got, tt.want)
+	}
+}
+
+func BenchmarkDiff(b *testing.B) {
+	file, _ := ioutil.ReadFile("../test/benchmark/V1.json")
+	var specV1 map[string]interface{}
+	_ = json.Unmarshal(file, &specV1)
+
+	file, _ = ioutil.ReadFile("../test/benchmark/V2.json")
+	var specV2 map[string]interface{}
+	_ = json.Unmarshal(file, &specV2)
+
+	for i := 0; i < b.N; i++ {
+		Diff(specV1, specV2)
 	}
 }
