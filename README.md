@@ -1,3 +1,5 @@
+![](logo.png)
+
 [![Build Status](https://travis-ci.com/vadim-hleif/dipher.svg?branch=master)](https://travis-ci.com/vadim-hleif/dipher)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vadim-hleif/dipher)](https://goreportcard.com/report/github.com/vadim-hleif/dipher)
 [![codecov](https://codecov.io/gh/vadim-hleif/dipher/branch/master/graph/badge.svg)](https://codecov.io/gh/vadim-hleif/dipher)
@@ -5,6 +7,14 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadim-hleif/dipher)
 [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/vadim-hleif/dipher/pkg)
 
+
+## Installation
+* Chose required release [here](https://github.com/vadim-hleif/dipher/releases/latest): 
+   * e.g. [v0.1.1 darwin amd86](https://github.com/vadim-hleif/dipher/releases/download/v0.1.1/dipher_0.1.1_darwin_amd64.tar.gz)
+* Download archive and extract binary:
+    ```shell script
+    wget -qO- https://github.com/vadim-hleif/dipher/releases/download/v0.1.1/dipher_0.1.1_darwin_amd64.tar.gz | tar -xvf dipher -C /usr/local/bin
+    ```
 
 WIP, good README coming soon
 ***
