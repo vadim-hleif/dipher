@@ -7,16 +7,29 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadim-hleif/dipher)
 [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/vadim-hleif/dipher/pkg)
 
+## What is Dipher?
+It's a tool for founding breaking changes between old and new swaggers spec versions. Now it supports only [Swagger 2.0](https://swagger.io/specification/v2/).
+
+It could be useful for REST services as additional check in CI/CD pipelines. 
+
+## Why Dipher?
+
+Analogues don't handle such many cases as current library - e.g. enums changes, nested object changes.
 
 ## Installation
 * Chose required release [here](https://github.com/vadim-hleif/dipher/releases/latest): 
    * e.g. [v0.1.1 darwin amd86](https://github.com/vadim-hleif/dipher/releases/download/v0.1.1/dipher_0.1.1_darwin_amd64.tar.gz)
 * Download archive and extract binary:
     ```shell script
-    wget -qO- https://github.com/vadim-hleif/dipher/releases/download/v0.1.1/dipher_0.1.1_darwin_amd64.tar.gz | tar -xvf dipher -C /usr/local/bin
+    wget https://github.com/vadim-hleif/dipher/releases/download/v0.1.1/dipher_0.1.1_darwin_amd64.tar.gz
+    tar -zxvf dipher_0.1.1_darwin_amd64.tar.gz dipher
+    rm dipher_0.1.1_darwin_amd64.tar.gz && mv dipher /usr/local/bin
     ```
+* Maybe will be added some package managers - now only manual installation is available
+## Usage
+![](usage.png)
 
-WIP, good README coming soon
+## Current features list
 ***
 - [X] all path and verb combinations in the old specification are present in the new one
 - [X] no request parameters are required in the new specification that were not required in the old one
@@ -32,7 +45,7 @@ WIP, good README coming soon
 - [ ] extensions validation
 
 
-TODO MINOR THINGS
+## TODO minor features list
 - [ ] common / global parameters (in root of some path / specification)
 - [ ] empty value parameters
 - [X] ref to not definitions node
