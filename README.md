@@ -8,7 +8,7 @@
 [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/vadim-hleif/dipher/pkg)
 
 ## What is Dipher?
-It's a tool for founding breaking changes between old and new swaggers spec versions. Now it supports only [Swagger 2.0](https://swagger.io/specification/v2/).
+It's a tool for finding breaking changes between old and new swagger specs. Now it supports only [Swagger 2.0](https://swagger.io/specification/v2/).
 
 It could be useful for REST services as additional check in CI/CD pipelines. 
 
